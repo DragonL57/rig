@@ -183,8 +183,9 @@ The owner's `~/.pi/agent` renders its playbooks and agents from this checkout, s
 | [debugging](.rig/playbooks/debugging.md) | fixing a bug or an unexplained failure |
 | [writing](.rig/playbooks/writing.md) | writing documentation, decisions, playbooks, or commit messages |
 | [docs](.rig/playbooks/docs.md) | changing documented behavior or recording a decision or finding |
+| [parallel](.rig/playbooks/parallel.md) | splitting substantial work across several implementers |
 
-The workflow in short: one agent plans and coordinates, starts from the smallest observable slice, and keeps an action only when the slice needs it. Small fixes are done directly. Substantial work starts with a sketch of types and signatures plus failing tests on the requirement's invariants, which the user sees in the plan; the implementer makes them pass. Relevant reviewers run once near the end, in a fixed report format, within turn budgets the [bounded review policy](backlog/docs/specs/doc-3%20-%20Bounded-review-policy.md) describes. When the user corrects the same kind of mistake twice, the Corrections table in `AGENTS.md` turns it into a proposal to enforce it in code, types, lint, or a test.
+The workflow in short: one agent plans and coordinates, starts from the smallest observable slice, and keeps an action only when the slice needs it. Small fixes are done directly. Substantial work starts with a written plan carrying a sketch of types and signatures, which a reviewer checks and the user approves; failing tests on the requirement's invariants come next, and the implementer makes them pass. Relevant reviewers run once near the end, in a fixed report format, within turn budgets the [bounded review policy](backlog/docs/specs/doc-3%20-%20Bounded-review-policy.md) describes. One commit closes the work, after the spec is done and reviewed. When the user corrects the same kind of mistake twice, the Corrections table in `AGENTS.md` turns it into a proposal to enforce it in code, types, lint, or a test.
 
 A project adds its own rules and playbooks below the project marker in `AGENTS.md`; files under `.rig/` are rewritten on every install. The [decision behind this layout](backlog/decisions/decision-9%20-%20Split-instructions-into-an-always-on-core-and-on-demand-playbooks.md) records what was rejected and why.
 
@@ -208,7 +209,6 @@ Yours win where it matters:
 
 - [grilling](https://github.com/mattpocock/skills) stress-tests a plan by asking you one round of questions at a time. Rig's workflow uses it when you ask or when a product choice blocks the work; install it globally once and the installer adds no project copy.
 - [i-have-adhd](https://github.com/ayghri/i-have-adhd) shapes replies to lead with the next action. Install it globally with `npx skills add ayghri/i-have-adhd --global --skill i-have-adhd` and turn it on with `/i-have-adhd`.
-- `experimental/parallel.md` in this repository has untested notes on running several agents at once. Copy it into a project and list it below the project marker to try it.
 
 ## Deliberately not here
 

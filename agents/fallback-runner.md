@@ -3,6 +3,7 @@ description: >-
   Runs a complete orchestrator-supplied inspection task on an explicitly
   selected model while preserving the repository.
 tools: read, bash
+exclude_extensions: pi-mcp-adapter
 thinking: high
 ---
 

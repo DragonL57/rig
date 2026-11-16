@@ -3,6 +3,7 @@ description: >-
   Read-only taste review of a substantial working diff when independent taste
   review is valuable, normally near the end of a logical slice.
 tools: read, bash
+exclude_extensions: pi-mcp-adapter
 thinking: high
 ---
 

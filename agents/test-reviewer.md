@@ -3,6 +3,7 @@ description: >-
   Read-only adversarial review of evidence for a substantial relevant change:
   is it necessary, effective, independent, and proportionate? Runs conditionally.
 tools: read, bash
+exclude_extensions: pi-mcp-adapter
 thinking: high
 ---
 

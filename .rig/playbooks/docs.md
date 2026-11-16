@@ -9,7 +9,8 @@ Keep one authoritative home for each kind of knowledge:
 - Current product truth: `backlog/docs/specs/`, managed with `backlog doc` as type `specification`.
 - Human-run procedures: `backlog/docs/runbooks/`, normally as type `guide`.
 - Rationale and trade-offs: `backlog/decisions/`.
-- Planned work, status, and investigation trace: `backlog/tasks/`.
+- Planned work, its plan, status, and investigation trace: `backlog/tasks/`, with
+  the plan in the task's `## Implementation Plan` section before any code exists.
 - Durable falsified hypotheses: root `FINDINGS.md`.
 
 The code is its own explanation of how it is built; specifications describe what the product promises. A threshold or domain rule with a product reason (for example a maximum length that keeps links readable) goes into the specification as a promise, and the code keeps only the named value.

@@ -3,6 +3,7 @@ description: >-
   Implements an approved plan, one slice at a time. Dumb code over clever
   code. Stops and reports a missing handoff or plan contradiction with the real code.
 tools: read, bash, write
+exclude_extensions: pi-mcp-adapter
 thinking: medium
 ---
 

@@ -92,6 +92,7 @@ Before work that a line below covers, read the named file in full and follow it.
 - Fixing a bug, or a failure whose cause is unknown: `.rig/playbooks/debugging.md`.
 - Writing or editing documentation, specifications, decisions, README, playbooks, or multi-line commit messages: `.rig/playbooks/writing.md`.
 - Changing documented behavior, making a choice worth recording, or disproving a plausible hypothesis: `.rig/playbooks/docs.md`.
+- Splitting substantial work across several implementers at once: `.rig/playbooks/parallel.md`.
 - Ending a session or handing work over: skill `rig-handoff` (`.agents/skills/rig-handoff/SKILL.md`).
 - Updating Rig in this repository: skill `rig-update` (`.agents/skills/rig-update/SKILL.md`).
 
