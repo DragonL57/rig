@@ -145,7 +145,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pandino:document-governance -->
+<!-- rig:document-governance -->
 ## Document governance
 
 Keep one authoritative home for each kind of knowledge:
@@ -163,7 +163,7 @@ Create `FINDINGS.md` when the first qualifying finding exists. Record only durab
 
 Do not add OKF, a validator, index or log generation, migration logic, or metadata beyond Backlog's own.
 
-<!-- pandino:session-continuity -->
+<!-- rig:session-continuity -->
 ## Session continuity
 
 Context resets between agent sessions. Preserve it with one personal Backlog task per operator named `Session pickup — <name>`: a replaceable current snapshot rather than a diary; Git history and normal Backlog tasks preserve history.

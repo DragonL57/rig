@@ -113,7 +113,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pandino:document-governance -->
+<!-- rig:document-governance -->
 ## Document governance
 
 One authoritative home per knowledge kind:
@@ -131,7 +131,7 @@ When current behavior changes, update the specification and add a decision for a
 
 Add nothing beyond Backlog's own metadata: no OKF, validator, index or log generation, or migration logic.
 
-<!-- pandino:session-continuity -->
+<!-- rig:session-continuity -->
 ## Session continuity
 
 Context does not persist between sessions. Each operator keeps one personal Backlog task named `Session pickup — <name>`: a replaceable current snapshot, not a diary — Git history and normal tasks preserve history. The snapshot is branch-scoped by design: each branch carries its own Git-versioned version, Backlog does not sync task edits across branches (working copy wins), so it describes that branch's work. Update it at session end on that branch, merging it into `main` with the work. Resolve a pickup conflict by keeping the most recent snapshot or rewriting post-merge. Read another branch's version without switching via `git show <branch>:"backlog/tasks/task-1 - Session-pickup-—-<name>.md"`; Backlog's browser resolves same-ID variants to one task, so it cannot select another branch's version while a working-copy version exists.

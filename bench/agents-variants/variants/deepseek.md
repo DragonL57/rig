@@ -84,7 +84,7 @@ Tests are maintained evidence for observable product promises, not a coverage qu
 
 The main agent plans and orchestrates; specialist subagents — `implementer`, `taste-reviewer`, `spec-reviewer`, `docs-reviewer`, `test-reviewer`, and `final-reviewer`, defined in the selected harness's agent directories — do the specialized work. Roles do not blur: the implementer is the only subagent that edits; reviewers inspect and report. Each specialist carries its own pinned model, so a reviewer is never the same model as the writer; do not override it at spawn time.
 
-Pandino also installs `fallback-runner`, a non-specialist, inspection-only escape hatch, usable only when a reviewer cannot launch or complete because its provider, quota, session, or pinned model is unavailable — never because a review found problems or the orchestrator dislikes its result. The orchestrator must supply an explicit alternate model, the failed reviewer's canonical instructions verbatim, and the concrete task context, preserving the review role and tool boundaries. For review work, choose a model different from the writer. Never invoke `fallback-runner` without an explicit model (it would silently inherit the parent), and visibly report every substitution.
+Rig also installs `fallback-runner`, a non-specialist, inspection-only escape hatch, usable only when a reviewer cannot launch or complete because its provider, quota, session, or pinned model is unavailable — never because a review found problems or the orchestrator dislikes its result. The orchestrator must supply an explicit alternate model, the failed reviewer's canonical instructions verbatim, and the concrete task context, preserving the review role and tool boundaries. For review work, choose a model different from the writer. Never invoke `fallback-runner` without an explicit model (it would silently inherit the parent), and visibly report every substitution.
 
 These definitions are written for [pi](https://pi.dev). On another harness, read them as role descriptions and apply the workflow with whatever that harness offers: its own subagent mechanism, separate sessions, or a single agent that adopts one role at a time and states which. If a role cannot be delegated, run its review yourself against the same definition and say so.
 
@@ -126,7 +126,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
-<!-- pandino:document-governance -->
+<!-- rig:document-governance -->
 ## Document governance
 
 Keep one authoritative home for each kind of knowledge:
@@ -144,7 +144,7 @@ When current behavior changes, update the current specification and add a decisi
 
 Do not add OKF, a validator, index or log generation, migration logic, or metadata beyond Backlog's own.
 
-<!-- pandino:session-continuity -->
+<!-- rig:session-continuity -->
 ## Session continuity
 
 Context does not persist between agent sessions. Preserve it with one personal Backlog task per operator named `Session pickup — <name>`. The task is a replaceable current snapshot, not a diary; Git history and normal Backlog tasks preserve history.
