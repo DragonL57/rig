@@ -17,7 +17,7 @@ A successful installer run writes deterministic `.rig/install.json`:
 
 ```json
 {
-  "repository": "https://github.com/wtfzambo/pandino",
+  "repository": "https://github.com/DragonL57/rig",
   "revision": "975a309000000000000000000000000000000000"
 }
 ```
@@ -36,7 +36,7 @@ The installer copies executable `.rig/check-update`. It reads the adjacent manif
 
 When a local checkout commit has not been published in the official repository, the exact revision comparison remains valid but the GitHub comparison URL may not resolve. The checker does not add ancestry, fork, or dirty-worktree analysis.
 
-The checker never changes the manifest or repository. It is manual only: Pandino adds no startup check, hook, background process, or persistent `AGENTS.md` instruction.
+The checker never changes the manifest or repository. It is manual only: the installer adds no startup check, hook, background process, or persistent `AGENTS.md` instruction to the target repository.
 
 ## Update procedure
 
