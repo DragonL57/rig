@@ -2,7 +2,7 @@
 id: decision-5
 title: Adopt a necessity-driven agent workflow
 date: '2026-09-01 09:18'
-status: accepted
+status: superseded
 ---
 ## Context
 
@@ -14,6 +14,8 @@ Make the smallest current slice and a necessity test the default: imagine omitti
 
 This decision supersedes decision-3 only where that decision limited rejection to incorrect, duplicate, or out-of-scope findings. It preserves independent adversarial reviewers, explicit disposition for every must-fix, user checkpoints for genuine unresolved product choices, and report-only standalone audits.
 
+Decision-14 supersedes this decision's delegation threshold. The orchestrator writes one file with 30 changed lines or fewer; everything bigger goes to an `implementer`, and a delegated change gets `spec-reviewer` and `taste-reviewer`. The necessity test, the rejection rule, and the user checkpoints stand.
+
 ## Consequences
 
-Routine reversible work can finish with direct implementation and proportionate checks, while substantial or consequential work can still earn the full specialist workflow. The agent must exercise judgment about necessity and substantiality; Pandino adds no workflow mode, risk matrix, numerical threshold, or approval form. Reduction and stopping become explicit completion behavior, so optional research and artifacts are removed before they generate maintenance work.
+Routine reversible work can finish with direct implementation and proportionate checks, while substantial or consequential work can still earn the full specialist workflow. The agent must exercise judgment about necessity; Pandino adds no workflow mode, risk matrix, or approval form. Decision-14 later added one numerical threshold for delegation, which this decision did not anticipate. Reduction and stopping become explicit completion behavior, so optional research and artifacts are removed before they generate maintenance work.

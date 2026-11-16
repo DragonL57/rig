@@ -16,12 +16,12 @@ Every agent works in the same checkout. Nothing is committed until the work is d
 
 Three rules keep that safe:
 
-- A slice never regenerates a shared artifact: a lockfile, codegen output, formatter output, or a snapshot. The orchestrator alone runs install, codegen, format, and snapshot updates, after every slice lands.
+- A slice never regenerates a shared artifact: a lockfile, codegen output, formatter output, or a snapshot. Hand install, codegen, format, and snapshot updates to one `implementer` after every slice lands.
 - A slice's check covers its own files. A slice reports a failure outside its file set and leaves that file alone. The orchestrator re-runs that check after the neighbour lands.
 - The orchestrator reads each slice with `git diff -- <its files>` and `git status --porcelain -- <its files>` before integrating, so a new file shows up too.
 
 ## Work no slice covers
 
-Each agent can finish its slice and still leave a bug in work no slice covered: a constant that disagrees across two slices, documentation describing deleted behavior, or a stub that stops the feature working end to end. The orchestrator owns those gaps.
+Each agent can finish its slice and still leave a bug in work no slice covered: a constant that disagrees across two slices, documentation describing deleted behavior, or a stub that stops the feature working end to end. The orchestrator finds those gaps.
 
-Name each agent's files in its slice, keep the leftovers for yourself, and integrate: read each diff, run checks matched to each artifact's purpose, and trace one user path end to end. One integration pass covers the cross-slice contradictions that per-slice reviews cannot see, under `.rig/playbooks/review.md`.
+Name each agent's files in its slice, hand the leftovers to an `implementer`, and integrate: read each diff, run checks matched to each artifact's purpose, and trace one user path end to end. One integration pass covers the cross-slice contradictions that per-slice reviews cannot see, under `.rig/playbooks/review.md`.

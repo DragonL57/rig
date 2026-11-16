@@ -1,7 +1,7 @@
 ---
 description: >-
-  Read-only adversarial review of a substantial diff when independent scope
-  review is valuable, normally near the end of a logical slice.
+  Read-only adversarial review of a diff for scope, normally near the end
+  of a logical slice.
 tools: read, bash
 exclude_extensions: pi-mcp-adapter
 thinking: high

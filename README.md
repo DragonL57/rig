@@ -56,11 +56,11 @@ It asks which editors to set up, then shows the model each specialist will run o
 The six specialists, and what each one is there to prevent:
 
 - **implementer** — writes the code from an approved plan, one slice at a time. Stops and reports instead of improvising when the plan does not survive contact with the code.
-- **taste-reviewer** — reviews *how* it is written when a substantial diff benefits from independent taste review. Catches the clever one-liner, the abstraction with one caller, the parameter nothing passes. Green tests do not make a diff good.
-- **spec-reviewer** — reviews *what* it does against what you actually asked for when a substantial diff benefits from independent scope review. Catches the missing half of the requirement and the three features you never requested.
-- **test-reviewer** — runs when a substantial relevant change benefits from evidence review. Judges whether automated evidence is necessary, effective, independent, and proportionate; it does not judge specification correctness.
-- **docs-reviewer** — runs for substantial documented behavior or authority changes, before final review when both run. Catches drift between the final code and its specifications, decisions, procedures, and findings.
-- **final-reviewer** — runs for a substantial change (a branch, or a range of commits on `main`) when composition or end-to-end value could change the merge decision. Catches what only shows up with every commit in front of you: a design that drifted, a contract half-updated, an abstraction that later commits made pointless.
+- **taste-reviewer** — reviews *how* it is written. Catches the clever one-liner, the abstraction with one caller, the parameter nothing passes. Green tests do not make a diff good.
+- **spec-reviewer** — reviews *what* it does against what you actually asked for. Catches the missing half of the requirement and the three features you never requested.
+- **test-reviewer** — runs when automated evidence could change the merge decision. Judges whether automated evidence is necessary, effective, independent, and proportionate; it does not judge specification correctness.
+- **docs-reviewer** — runs for documented behavior or authority changes, before final review when both run. Catches drift between the final code and its specifications, decisions, procedures, and findings.
+- **final-reviewer** — runs for a change (a branch, a range of commits on `main`, or the working diff) when composition or end-to-end value could change the merge decision. Catches what only shows up with every commit in front of you: a design that drifted, a contract half-updated, an abstraction that later commits made pointless.
 - **fallback-runner** — an inspection-only escape hatch, not a seventh specialist. Use it only when a reviewer cannot launch or complete because its provider, quota, session, or pinned model is unavailable. Give it that reviewer's instructions verbatim, the concrete task context, and an explicit alternate model; report the substitution. It is not a retry for findings you dislike.
 
 ### Which model runs each specialist
@@ -175,7 +175,7 @@ The owner's `~/.pi/agent` renders its playbooks and agents from this checkout, s
 
 | Playbook | Read when |
 |---|---|
-| [workflow](.rig/playbooks/workflow.md) | planning substantial implementation, handing it to the implementer, or closing it |
+| [workflow](.rig/playbooks/workflow.md) | planning implementation, handing it to the implementer, or closing it |
 | [review](.rig/playbooks/review.md) | launching reviewers or deciding their findings |
 | [reviewing](.rig/playbooks/reviewing.md) | working as a reviewer; it fixes the report format |
 | [design](.rig/playbooks/design.md) | designing new modules or interfaces, and checking code for red flags |
@@ -183,9 +183,9 @@ The owner's `~/.pi/agent` renders its playbooks and agents from this checkout, s
 | [debugging](.rig/playbooks/debugging.md) | fixing a bug or an unexplained failure |
 | [writing](.rig/playbooks/writing.md) | writing documentation, decisions, playbooks, or commit messages |
 | [docs](.rig/playbooks/docs.md) | changing documented behavior or recording a decision or finding |
-| [parallel](.rig/playbooks/parallel.md) | splitting substantial work across several implementers |
+| [parallel](.rig/playbooks/parallel.md) | splitting work across several implementers |
 
-The workflow in short: one agent plans and coordinates, starts from the smallest observable slice, and keeps an action only when the slice needs it. Small fixes are done directly. Substantial work starts with a written plan carrying a sketch of types and signatures, which a reviewer checks and the user approves; failing tests on the requirement's invariants come next, and the implementer makes them pass. Relevant reviewers run once near the end, in a fixed report format, within turn budgets the [bounded review policy](backlog/docs/specs/doc-3%20-%20Bounded-review-policy.md) describes. One commit closes the work, after the spec is done and reviewed. When the user corrects the same kind of mistake twice, the Corrections table in `AGENTS.md` turns it into a proposal to enforce it in code, types, lint, or a test.
+The workflow in short: one agent plans and coordinates, starts from the smallest observable slice, and keeps an action only when the slice needs it. An `implementer` writes every delegated change. Work starts with a written plan carrying a sketch of types and signatures, which a reviewer checks and the user approves; failing tests on the requirement's invariants come next, and the implementer makes them pass. `spec-reviewer` and `taste-reviewer` run on every delegated change once near the end, in a fixed report format, within turn budgets the [bounded review policy](backlog/docs/specs/doc-3%20-%20Bounded-review-policy.md) describes. One commit closes the work, after the spec is done and reviewed. When the user corrects the same kind of mistake twice, the Corrections table in `AGENTS.md` turns it into a proposal to enforce it in code, types, lint, or a test.
 
 A project adds its own rules and playbooks below the project marker in `AGENTS.md`; files under `.rig/` are rewritten on every install. The [decision behind this layout](backlog/decisions/decision-9%20-%20Split-instructions-into-an-always-on-core-and-on-demand-playbooks.md) records what was rejected and why.
 

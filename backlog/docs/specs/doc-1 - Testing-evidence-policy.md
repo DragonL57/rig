@@ -28,11 +28,11 @@ Rely on static analysis, type checking, compilation, linting, and existence chec
 
 ## Invariants first
 
-For substantial shipping work, the planner writes the requirement's observable invariants as failing tests against a sketch of the interface before implementation begins; the implementer makes them pass and may add tests. Their expectations exist before the code, so they are independent of it. Each test is judged with two imagined edits: it must fail when the behavior breaks and keep passing when only the internals change.
+For shipping work, the planner writes the requirement's observable invariants as failing tests against a sketch of the interface before implementation begins; the implementer makes them pass and may add tests. Their expectations exist before the code, so they are independent of it. Each test is judged with two imagined edits: it must fail when the behavior breaks and keep passing when only the internals change.
 
 ## Conditional test review
 
-Run the read-only test review when substantial behavior, test, test-infrastructure changes, or a shipping-code bug fix warrants independent evidence review. Judge the need against the artifact purpose above; visual-only exploration and documentation-only or trivial non-behavioral diffs normally finish with direct inspection. The reviewer challenges missing protection, false protection, and excessive or brittle tests. It may run existing tests and probes that preserve repository files, tasks, and configuration, and describe proposed mutations for the implementer.
+Run the read-only test review when behavior, test, or test-infrastructure changes, or a shipping-code bug fix, could change the merge decision. Judge the need against the artifact purpose above; visual-only exploration and documentation-only or trivial non-behavioral diffs normally finish with direct inspection. The reviewer challenges missing protection, false protection, and excessive or brittle tests. It may run existing tests and probes that preserve repository files, tasks, and configuration, and describe proposed mutations for the implementer.
 
 `spec-reviewer` judges whether the requested behavior is correctly implemented. `test-reviewer` judges whether automated evidence is necessary, effective, independent, and proportionate.
 

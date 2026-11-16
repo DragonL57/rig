@@ -10,7 +10,7 @@ For shipping code, tests are maintained evidence for observable product promises
 
 ## Start from the invariants
 
-For substantial shipping work, the planner turns the requirement into "when X, then Y" invariants and writes each as a test against the sketched interface, before the implementation exists. Run them and check they fail for the missing behavior, rather than an import error or a typo. The implementer makes them pass and adds tests for promises the implementation reveals.
+For shipping work, the planner turns the requirement into "when X, then Y" invariants and writes each as a test against the sketched interface, before the implementation exists. Run them and check they fail for the missing behavior, rather than an import error or a typo. The implementer makes them pass and adds tests for promises the implementation reveals.
 
 ## Judge each test with two imagined edits
 

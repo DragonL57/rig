@@ -3,13 +3,13 @@ id: doc-3
 title: Bounded review policy
 type: specification
 created_date: '2026-09-28 16:03'
-updated_date: '2026-11-16 11:01'
+updated_date: '2026-11-16 17:40'
 ---
 # Bounded review policy
 
 ## Scope and roles
 
-Reviews support a decision about our changes and their consequences. Taste owns code quality, spec owns requested behavior, test owns evidence quality, docs owns documentation drift, and final owns the composition and end-to-end behavior of the change as a whole, which is either a branch against its base, a range of commits on `main`, or the working diff. The plan review before user approval is the one trigger added since this policy was written; the other conditional triggers and model assignments remain unchanged. The portable instructions implementing this policy ship in two playbooks and the agent definitions: `.rig/playbooks/review.md` for the orchestrator who launches reviewers and decides findings, `.rig/playbooks/reviewing.md` for every reviewer, and `agents/*-reviewer.md` for each role.
+Reviews support a decision about our changes and their consequences. Taste owns code quality, spec owns requested behavior, test owns evidence quality, docs owns documentation drift, and final owns the composition and end-to-end behavior of the change as a whole, which is either a branch against its base, a range of commits on `main`, or the working diff. The plan review before user approval, and the review of every delegated change with `spec-reviewer` and `taste-reviewer` at minimum, are the triggers this policy now carries; the model assignments remain unchanged. The portable instructions implementing this policy ship in two playbooks and the agent definitions: `.rig/playbooks/review.md` for the orchestrator who launches reviewers and decides findings, `.rig/playbooks/reviewing.md` for every reviewer, and `agents/*-reviewer.md` for each role.
 
 ## Mandate and conclusion
 
