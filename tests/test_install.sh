@@ -771,17 +771,47 @@ grep -q '^  edit: false' "$pin_target/.opencode/agent/fallback-runner.md"
 grep -q '^sandbox_mode = "read-only"' "$pin_target/.codex/agents/fallback-runner.toml"
 # Test review has the same inspection-only boundary in every harness.
 grep -qx 'thinking: high' "$pin_target/.pi/agents/test-reviewer.md"
-for agent in taste-reviewer spec-reviewer docs-reviewer test-reviewer; do
-    grep -qx 'max_turns: 20' "$pin_target/.pi/agents/$agent.md"
-done
-grep -qx 'max_turns: 40' "$pin_target/.pi/agents/final-reviewer.md"
-for agent in implementer fallback-runner; do
-    if grep -q '^max_turns:' "$pin_target/.pi/agents/$agent.md"; then
-        echo "FAIL: Pi $agent has a review turn limit" >&2
+# The launch call owns the budget, so no Pi agent may pin one, and every agent
+# may name only a tool pi enables. pi ignores an unknown name silently, so the
+# list is checked in both directions.
+for file in "$pin_target"/.pi/agents/*.md; do
+    agent="$(basename "$file" .md)"
+    if grep -q '^max_turns:' "$file"; then
+        echo "FAIL: Pi $agent pins max_turns" >&2
         exit 1
     fi
+    tools="$(awk -F': *' '/^tools:/ { print $2; exit }' "$file" | tr -d ' ')"
+    if [ -z "$tools" ] || [ "$tools" = all ]; then
+        echo "FAIL: Pi $agent grants every tool" >&2
+        exit 1
+    fi
+    for token in $(printf '%s' "$tools" | tr ',' ' '); do
+        case "$token" in
+            read|bash|write|replace|replace_match|insert) ;;
+            *)
+                echo "FAIL: Pi $agent names a tool pi does not enable: $token" >&2
+                exit 1
+                ;;
+        esac
+    done
 done
-grep -qx 'tools: Bash,Glob,Grep,Read' "$pin_target/.claude/agents/test-reviewer.md"
+# The implementer gets git through bash, so the ban has to be in its prompt.
+grep -q 'Never commit' "$pin_target/.pi/agents/implementer.md"
+# Every tool name the kit may use survives the Claude translation.
+. "$repo_dir/harnesses.sh"
+[ "$(claude_tools 'read, bash, write')" = 'Bash,Edit,Read,Write' ]
+[ "$(claude_tools 'read, grep, find, ls, bash')" = 'Bash,Glob,Grep,Read' ]
+grep -qx 'tools: Bash,Read' "$pin_target/.claude/agents/test-reviewer.md"
+# The implementer writes files, so no harness may hand it a read-only sandbox.
+if grep -q '^sandbox_mode = "read-only"' "$pin_target/.codex/agents/implementer.toml"; then
+    echo "FAIL: Codex implementer cannot write" >&2
+    exit 1
+fi
+if grep -q '^  write: false' "$pin_target/.opencode/agent/implementer.md"; then
+    echo "FAIL: opencode implementer cannot write" >&2
+    exit 1
+fi
+grep -qx 'tools: Bash,Edit,Read,Write' "$pin_target/.claude/agents/implementer.md"
 grep -q '^  write: false' "$pin_target/.opencode/agent/test-reviewer.md"
 grep -q '^  edit: false' "$pin_target/.opencode/agent/test-reviewer.md"
 grep -q '^sandbox_mode = "read-only"' "$pin_target/.codex/agents/test-reviewer.toml"

@@ -2,7 +2,7 @@
 description: >-
   Runs a complete orchestrator-supplied inspection task on an explicitly
   selected model while preserving the repository.
-tools: read, grep, find, ls, bash
+tools: read, bash
 thinking: high
 ---
 

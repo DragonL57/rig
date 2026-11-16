@@ -23,6 +23,23 @@ agent_tools() {
     awk -F': *' '/^tools:/ { print $2; exit }' "$1"
 }
 
+# Whether a kit agent declares a tool that edits files, from its tools list. An
+# empty list or "all" grants every tool, so it can write. Codex and opencode
+# express a read-only sandbox, so they key off this. A `read, bash` agent can
+# still write through a shell; the list is what the agent was granted, not what
+# the shell can reach.
+agent_can_write() {
+    local tools
+    tools="$(agent_tools "$1" | tr -d ' ')"
+    case "$tools" in
+        ""|all) return 0 ;;
+    esac
+    case ",$tools," in
+        *,write,*|*,replace,*|*,replace_match,*|*,insert,*) return 0 ;;
+    esac
+    return 1
+}
+
 # Canonical effort level, translated to the selected harness's native field.
 agent_thinking() {
     awk -F': *' '/^thinking:/ { print $2; exit }' "$1"
@@ -58,10 +75,12 @@ write_pi_agent() {
 }
 
 # Claude Code: tools are capitalised names, and "all" is expressed by omission.
+# A writing agent needs Edit as well as Write, and pi's editing tools (replace,
+# replace_match, insert) have no Claude Code equivalent but Edit.
 claude_tools() {
     case "$1" in
         all|"") return ;;
-        *) echo "$1" | sed -e 's/read/Read/; s/grep/Grep/; s/find/Glob/; s/ls/Glob/; s/bash/Bash/' \
+        *) echo "$1" | sed -e 's/replace_match/Edit/; s/replace/Edit/; s/insert/Edit/; s/write/Write,Edit/; s/read/Read/; s/grep/Grep/; s/find/Glob/; s/ls/Glob/; s/bash/Bash/' \
                | tr ',' '\n' | awk 'NF' | sed 's/^ *//' | sort -u | paste -sd, - ;;
     esac
 }
@@ -83,9 +102,8 @@ write_claude_agent() {
 }
 
 write_opencode_agent() {
-    local src="$1" dst="$2" model="$3" effort="$4" name tools
+    local src="$1" dst="$2" model="$3" effort="$4" name
     name="$(basename "$src" .md)"
-    tools="$(agent_tools "$src")"
     {
         echo "---"
         echo "name: $name"
@@ -100,7 +118,7 @@ write_opencode_agent() {
             gpt-*|deepseek-*) [ -n "$model" ] && echo "reasoningEffort: $effort" ;;
             claude-*-5-5) echo "effort: $effort" ;;
         esac
-        if [ -n "$tools" ] && [ "$tools" != "all" ]; then
+        if ! agent_can_write "$src"; then
             echo "tools:"
             echo "  write: false"
             echo "  edit: false"
@@ -113,15 +131,16 @@ write_opencode_agent() {
 # Codex takes TOML, with the prompt in a multi-line string. Inspection-only
 # agents get sandbox_mode = "read-only", matching the boundary in their prompts.
 write_codex_agent() {
-    local src="$1" dst="$2" model="$3" effort="$4" name tools
+    local src="$1" dst="$2" model="$3" effort="$4" name
     name="$(basename "$src" .md)"
-    tools="$(agent_tools "$src")"
     {
         printf 'name = "%s"\n' "$name"
         printf 'description = "%s"\n' "$(agent_description "$src" | sed 's/"/\\"/g')"
         [ -n "$model" ] && printf 'model = "%s"\n' "$model"
         [ -n "$model" ] && printf 'model_reasoning_effort = "%s"\n' "$effort"
-        [ -n "$tools" ] && [ "$tools" != "all" ] && printf 'sandbox_mode = "read-only"\n'
+        if ! agent_can_write "$src"; then
+            printf 'sandbox_mode = "read-only"\n'
+        fi
         printf 'developer_instructions = """\n'
         # A closing triple quote inside the body would end the string early.
         agent_body "$src" | sed 's/"""/\x27\x27\x27/g'

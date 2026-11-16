@@ -22,6 +22,6 @@ Work inside the repository to update, starting from a clean working tree. An upd
    Without a terminal the installer preselects the editors installed on this machine; pass `--no-input` when the repository uses pi only.
 4. Merge every candidate in `.rig/merge/` into the corresponding existing file. Keep the project's product, security, build, and team rules, and take Rig's updated generic workflow where the two do not conflict.
 5. Delete `.rig/merge/` after resolving it.
-6. Inspect the complete diff yourself. Verify that all seven helpers are available in each selected editor, the six specialists keep explicit model pins, `fallback-runner` has no model pin, and the repository's normal checks pass.
+6. Inspect the complete diff yourself. Verify that all seven helpers are available in each selected editor, the six specialists keep explicit model pins, `fallback-runner` has no model pin, no agent pins `max_turns`, and the repository's normal checks pass.
 7. Keep this update separate from feature work. Launch `implementer` or any reviewer only on the user's explicit request. Bring an update conflict that affects product behavior, security, or team workflow to the user for approval.
 8. Report what was added, updated, preserved, or left unresolved. Commit or push only on the user's request.
