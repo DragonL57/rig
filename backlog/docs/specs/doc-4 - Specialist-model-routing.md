@@ -3,7 +3,7 @@ id: doc-4
 title: Specialist model routing
 type: specification
 created_date: '2026-09-28 22:19'
-updated_date: '2026-11-14 21:11'
+updated_date: '2026-11-16 11:01'
 ---
 # Specialist model routing
 
@@ -33,7 +33,7 @@ Automatic recommendations omit superseded generations: GPT-5.x, GPT-6 Sol, Claud
 
 ## Saved assignments
 
-`.pandino/models.json` is the one file an operator edits to choose models and efforts. It holds one block per harness and one entry per pinned agent:
+`.rig/models.json` is the one file an operator edits to choose models and efforts. It holds one block per harness and one entry per pinned agent:
 
 ```json
 {
