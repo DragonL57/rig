@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -u
 
-repository="https://github.com/wtfzambo/pandino"
-main_ref_url="https://api.github.com/repos/wtfzambo/pandino/git/ref/heads/main"
+repository="https://github.com/DragonL57/rig"
+main_ref_url="https://api.github.com/repos/DragonL57/rig/git/ref/heads/main"
 manifest_dir="$(cd "$(dirname "$0")" && pwd)"
 manifest="$manifest_dir/install.json"
 
@@ -43,7 +43,7 @@ resolve_main_revision() {
 }
 
 unknown() {
-    printf 'Pandino update status unknown: %s\n' "$1"
+    printf 'Rig update status unknown: %s\n' "$1"
     exit 2
 }
 
@@ -51,12 +51,12 @@ installed_revision="$(read_installed_revision)" || unknown "installed revision i
 upstream_revision="$(resolve_main_revision)" || unknown "upstream main revision is unavailable or malformed."
 
 if [ "$installed_revision" = "$upstream_revision" ]; then
-    printf 'Pandino is current: installed %s, upstream %s.\n' \
+    printf 'Rig is current: installed %s, upstream %s.\n' \
         "${installed_revision:0:7}" "${upstream_revision:0:7}"
     exit 0
 fi
 
-printf 'Pandino update available: installed %s, upstream %s.\n' \
+printf 'Rig update available: installed %s, upstream %s.\n' \
     "${installed_revision:0:7}" "${upstream_revision:0:7}"
 printf '%s/compare/%s...%s\n' "$repository" "$installed_revision" "$upstream_revision"
 exit 1

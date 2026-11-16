@@ -1,6 +1,6 @@
 # Documents
 
-Use this playbook when documented behavior changes, when a choice is worth recording, or when evidence disproves a plausible hypothesis. Write each document following `.pandino/playbooks/writing.md`.
+Use this playbook when documented behavior changes, when a choice is worth recording, or when evidence disproves a plausible hypothesis. Write each document following `.rig/playbooks/writing.md`.
 
 ## Where each kind of knowledge lives
 

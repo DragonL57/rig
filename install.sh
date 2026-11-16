@@ -6,8 +6,8 @@
 #   --no-input  set up pi only, without asking
 set -euo pipefail
 
-repository="https://github.com/wtfzambo/pandino"
-main_ref_url="https://api.github.com/repos/wtfzambo/pandino/git/ref/heads/main"
+repository="https://github.com/DragonL57/rig"
+main_ref_url="https://api.github.com/repos/DragonL57/rig/git/ref/heads/main"
 
 # Keep these helpers in sync with check-update; deployed scripts cannot share code.
 is_valid_revision() {
@@ -40,7 +40,7 @@ target="${1:?usage: ./install.sh /path/to/repo [--yes|--no-input]}"
 kit_revision="unknown"
 
 if ! command -v backlog > /dev/null; then
-    printf 'error: Pandino needs Backlog.md, and the backlog command is not installed.\n' >&2
+    printf 'error: Rig needs Backlog.md, and the backlog command is not installed.\n' >&2
     printf '       Install it with npm i -g backlog.md, then run this again.\n' >&2
     exit 1
 fi
@@ -60,9 +60,9 @@ else
     else
         kit_revision=unknown
     fi
-    if ! curl -fsSL "https://codeload.github.com/wtfzambo/pandino/tar.gz/$archive_ref" \
+    if ! curl -fsSL "https://codeload.github.com/DragonL57/rig/tar.gz/$archive_ref" \
         | tar -xz -C "$kit_dir" --strip-components=1 2> /dev/null; then
-        printf 'error: could not download the Pandino kit.\n' >&2
+        printf 'error: could not download the Rig kit.\n' >&2
         printf '       Check your connection, or clone the repo and run ./install.sh instead.\n' >&2
         exit 1
     fi
@@ -282,7 +282,7 @@ if asking; then
     banner
     printf '\n  %sCoding rules, one agent writes, separate agents review.%s\n' "$grey" "$reset"
 else
-    printf '\n  %sPandino%s %s— coding rules, one agent writes, separate agents review%s\n' \
+    printf '\n  %sRig%s %s— coding rules, one agent writes, separate agents review%s\n' \
         "$bold$magenta" "$reset" "$grey" "$reset"
 fi
 printf '  %sInstalling into%s %s%s%s\n' "$grey" "$reset" "$cyan" "$target" "$reset"
@@ -313,7 +313,7 @@ esac
 # own model, so the reviewers are the same model as the writer. Resolve one
 # model and effort per agent from what each picked harness can actually run,
 # remembering earlier answers so a re-run does not undo a hand-edited choice.
-models_file="$target/.pandino/models.json"
+models_file="$target/.rig/models.json"
 model_notes=()
 
 # Anything already chosen wins over the recommendation, except a superseded
@@ -420,7 +420,7 @@ print_model_matrix() {
 }
 
 # Reassign one harness's agents by hand. Each agent offers the model and effort
-# pairs Pandino would consider for it; an agent nothing recommended could fill
+# pairs Rig would consider for it; an agent nothing recommended could fill
 # offers the whole catalogue at the kit's effort, so an unusual setup is still
 # one prompt, not a restart.
 customize_models() {
@@ -480,11 +480,11 @@ if asking && [ -n "${picked_keys// /}" ]; then
 fi
 
 # Remember the assignment so the next run reuses it verbatim.
-mkdir -p "$target/.pandino"
+mkdir -p "$target/.rig"
 save_models "$models_file" $picked_keys
 
 # Generated candidates are disposable and rebuilt from the current kit.
-rm -rf "$target/.pandino/merge"
+rm -rf "$target/.rig/merge"
 staged_count=0
 
 install_or_stage() {
@@ -504,10 +504,10 @@ install_or_stage() {
 }
 
 write_install_provenance() {
-    local manifest="$target/.pandino/install.json" revision_json
-    mkdir -p "$target/.pandino"
-    cp "$kit_dir/check-update" "$target/.pandino/check-update"
-    chmod +x "$target/.pandino/check-update"
+    local manifest="$target/.rig/install.json" revision_json
+    mkdir -p "$target/.rig"
+    cp "$kit_dir/check-update" "$target/.rig/check-update"
+    chmod +x "$target/.rig/check-update"
 
     if [ "$kit_revision" = unknown ]; then
         revision_json=null
@@ -529,10 +529,10 @@ trim_trailing_blank_lines() {
     sed -e :a -e '/^$/{$d;N;ba' -e '}'
 }
 
-# Pandino owns everything above the project marker; the project owns the
+# Rig owns everything above the project marker; the project owns the
 # rest. Older installs ended the core at an appended section or Backlog's block.
 core_only() {
-    awk '/<!-- Project-specific/ || /<!-- pandino:/ || /<!-- BACKLOG.MD GUIDELINES/ { exit } { print }' "$1" \
+    awk '/<!-- Project-specific/ || /<!-- rig:/ || /<!-- BACKLOG.MD GUIDELINES/ { exit } { print }' "$1" \
         | trim_trailing_blank_lines
 }
 
@@ -554,17 +554,17 @@ without_assignment_lines() {
 # next level-two heading, the next marker, or the end of the file.
 remove_appended_sections() {
     local file="$1" cleaned
-    grep -q '^<!-- pandino:[a-z-]* -->$' "$file" || return 0
+    grep -q '^<!-- rig:[a-z-]* -->$' "$file" || return 0
     cleaned="$(mktemp)"
     awk '
-        /^<!-- pandino:[a-z-]* -->$/ { skip = 1; titled = 0; next }
+        /^<!-- rig:[a-z-]* -->$/ { skip = 1; titled = 0; next }
         skip && /^<!-- / { skip = 0 }
         skip && /^## / { if (titled) skip = 0; else { titled = 1; next } }
         !skip { print }
     ' "$file" | trim_trailing_blank_lines > "$cleaned"
     cat "$cleaned" > "$file"
     rm -f "$cleaned"
-    say removed "$green" "earlier appended Pandino sections ${dim}from${reset} $file"
+    say removed "$green" "earlier appended Rig sections ${dim}from${reset} $file"
 }
 
 kit_agents="$(mktemp)"
@@ -583,28 +583,28 @@ else
     install_or_stage \
         "$kit_agents" \
         "$target/AGENTS.md" \
-        "$target/.pandino/merge/AGENTS.md"
+        "$target/.rig/merge/AGENTS.md"
 fi
 
-rm -rf "$target/.pandino/snippets"
-if [ "$kit_dir/.pandino/playbooks" -ef "$target/.pandino/playbooks" ]; then
-    say unchanged "$dim" "$target/.pandino/playbooks/ ${dim}(the kit's own sources)${reset}"
+rm -rf "$target/.rig/snippets"
+if [ "$kit_dir/.rig/playbooks" -ef "$target/.rig/playbooks" ]; then
+    say unchanged "$dim" "$target/.rig/playbooks/ ${dim}(the kit's own sources)${reset}"
 else
-    rm -rf "$target/.pandino/playbooks"
-    mkdir -p "$target/.pandino"
-    cp -R "$kit_dir/.pandino/playbooks" "$target/.pandino/playbooks"
-    say installed "$green" "$target/.pandino/playbooks/"
+    rm -rf "$target/.rig/playbooks"
+    mkdir -p "$target/.rig"
+    cp -R "$kit_dir/.rig/playbooks" "$target/.rig/playbooks"
+    say installed "$green" "$target/.rig/playbooks/"
 fi
 
 install_session_skills() {
     local skills_dir="$1" name
     [ "$kit_dir/.agents/skills" -ef "$skills_dir" ] && return 0
-    for name in pandino-pickup pandino-handoff pandino-update; do
+    for name in rig-pickup rig-handoff rig-update; do
         rm -rf "$skills_dir/$name"
         mkdir -p "$skills_dir"
         cp -R "$kit_dir/.agents/skills/$name" "$skills_dir/$name"
     done
-    say installed "$green" "$skills_dir/ ${dim}(pandino-pickup, pandino-handoff, pandino-update)${reset}"
+    say installed "$green" "$skills_dir/ ${dim}(rig-pickup, rig-handoff, rig-update)${reset}"
 }
 install_session_skills "$target/.agents/skills"
 # Claude Code reads project skills only from .claude/skills.
@@ -621,7 +621,7 @@ for harness in $picked_keys; do
             name="$(basename "$agent")"
             pinned="$(mktemp)"
             write_harness_agent "$agent" pi "$pinned"
-            # The model and thinking lines are Pandino's to rewrite: an
+            # The model and thinking lines are Rig's to rewrite: an
             # installed agent that differs from the kit only there is our own
             # earlier output, not a local edit, so changing models.json takes
             # effect on a re-run.
@@ -632,7 +632,7 @@ for harness in $picked_keys; do
                 cp "$pinned" "$dst"
                 say updated "$green" "$dst"
             else
-                install_or_stage "$pinned" "$dst" "$target/.pandino/merge/agents/$name"
+                install_or_stage "$pinned" "$dst" "$target/.rig/merge/agents/$name"
             fi
             rm -f "$pinned"
         done
@@ -689,7 +689,7 @@ esac
 if [ "$staged_count" -gt 0 ]; then
     step "Conflicts to resolve"
     printf '  %sYou already had some of these files, so I left yours alone.%s\n' "$yellow" "$reset"
-    printf '  %sMine are in .pandino/merge/ — take what you want, then delete it.%s\n' "$yellow" "$reset"
+    printf '  %sMine are in .rig/merge/ — take what you want, then delete it.%s\n' "$yellow" "$reset"
 fi
 
 step "Backlog.md"
@@ -731,15 +731,15 @@ recap() { printf '  %s  · %s%s%s%s%s%s\n' "$grey" "$reset" "$cyan" "$1" "$reset
 
 printf '\n  %sWhat you now have:%s\n' "$grey" "$reset"
 if [ "$kit_revision" = unknown ]; then
-    recap "Pandino kit revision" " — unknown"
+    recap "Rig kit revision" " — unknown"
 else
-    recap "Pandino kit revision" " — ${kit_revision:0:7}"
+    recap "Rig kit revision" " — ${kit_revision:0:7}"
 fi
-recap ".pandino/install.json" " — the source revision from this successful install"
-recap ".pandino/check-update" " — manually checks whether upstream main changed"
+recap ".rig/install.json" " — the source revision from this successful install"
+recap ".rig/check-update" " — manually checks whether upstream main changed"
 recap "AGENTS.md" " — the always-on rules and the index of playbooks"
-recap ".pandino/playbooks/" " — how-to guides agents read when the work calls for them"
-recap ".agents/skills/" " — pandino-pickup and pandino-handoff to resume and hand over sessions, pandino-update to update this kit"
+recap ".rig/playbooks/" " — how-to guides agents read when the work calls for them"
+recap ".agents/skills/" " — rig-pickup and rig-handoff to resume and hand over sessions, rig-update to update this kit"
 for harness in $picked_keys; do
     case "$harness" in
         pi)       recap ".pi/agents/" " — six pinned specialists: implementer, taste-reviewer, spec-reviewer, docs-reviewer, test-reviewer, final-reviewer; unpinned fallback-runner" ;;
@@ -767,7 +767,7 @@ printf '  %s    fallback-runner has no default and requires a call-time model%s\
 for note in ${model_notes+"${model_notes[@]}"}; do
     printf '  %s    %s%s\n' "$yellow" "$note" "$reset"
 done
-printf '  %s    edit .pandino/models.json to change them%s\n' "$grey" "$reset"
+printf '  %s    edit .rig/models.json to change them%s\n' "$grey" "$reset"
 
 if [ "${#skipped[@]}" -gt 0 ]; then
     printf '\n  %sSkipped, in case you want them later:%s\n' "$grey" "$reset"

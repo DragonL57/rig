@@ -13,7 +13,7 @@ raw_dir="$bench_dir/results/raw"
 agents_file="$bench_dir/variants/$variant.md"
 slug="${variant}_${task}_r${run}"
 
-# Production routing from .pandino/models.json, pinned here so a run is reproducible.
+# Production routing from .rig/models.json, pinned here so a run is reproducible.
 model_taste="ollama-cloud/deepseek-v4.1-flash"
 model_spec="ollama-cloud/deepseek-v4.1-flash"
 model_test="openai/gpt-6.1-sol"
@@ -55,11 +55,11 @@ trap 'rm -rf "$work"' EXIT
 if [[ "$role" == implementer ]]; then
     cp -R "$task_dir/files/." "$work/"
     cp "$agents_file" "$work/AGENTS.md"
-    mkdir -p "$work/.pandino" && cp -R "$bench_dir/../../.pandino/playbooks" "$work/.pandino/"
+    mkdir -p "$work/.rig" && cp -R "$bench_dir/../../.rig/playbooks" "$work/.rig/"
 else
     cp -R "$task_dir/base/." "$work/"
     cp "$agents_file" "$work/AGENTS.md"
-    mkdir -p "$work/.pandino" && cp -R "$bench_dir/../../.pandino/playbooks" "$work/.pandino/"
+    mkdir -p "$work/.rig" && cp -R "$bench_dir/../../.rig/playbooks" "$work/.rig/"
     git -C "$work" init -q
     git -C "$work" add -A
     git -C "$work" -c user.email=bench@local -c user.name=bench commit -qm base

@@ -21,7 +21,7 @@ Write the plain version you would explain aloud; rewrite code smarter than its p
 - Write code that explains itself. Write a comment only for a constraint imposed by something outside our control (dependency, platform, protocol), linked when possible; for an accepted scale limit of a simple implementation; or for a license. The product reason behind a threshold or domain rule belongs in the specification. Docstrings follow the same rule; a project that needs them says so below the project marker.
 - Treat a comment that justifies a workaround in our own code, and a lint or type-check suppression, as a red flag: fix the root cause even when that costs more. When the cause lies outside the current work, report it to the user.
 
-How to apply these rules, with red flags: `.pandino/playbooks/design.md`.
+How to apply these rules, with red flags: `.rig/playbooks/design.md`.
 
 ## Modules and ordering
 
@@ -66,7 +66,7 @@ Prefer a functional core: pure business logic, I/O at the edges.
 - Describe each thing by what it is and does. Mention a contrast only to correct a misreading the reader is likely to make.
 - Write each paragraph on one line and leave wrapping to the editor.
 
-How to write documents, decisions, playbooks, and commit messages: `.pandino/playbooks/writing.md`.
+How to write documents, decisions, playbooks, and commit messages: `.rig/playbooks/writing.md`.
 
 ## Agent behavior
 
@@ -83,19 +83,19 @@ How to write documents, decisions, playbooks, and commit messages: `.pandino/pla
 
 Before work that a line below covers, read the named file in full and follow it. Several can apply at once.
 
-- Starting or resuming work in this repository: skill `pandino-pickup` (`.agents/skills/pandino-pickup/SKILL.md`).
-- Planning substantial implementation, handing it to the `implementer`, or closing it: `.pandino/playbooks/workflow.md`.
-- Launching or briefing reviewers, or handling their findings: `.pandino/playbooks/review.md`.
-- Reviewing as a reviewer: `.pandino/playbooks/reviewing.md`.
-- Designing new modules, public interfaces, or types that cross a module boundary: `.pandino/playbooks/design.md`.
-- Writing, changing, or reviewing tests, or choosing how to verify a change: `.pandino/playbooks/testing.md`.
-- Fixing a bug, or a failure whose cause is unknown: `.pandino/playbooks/debugging.md`.
-- Writing or editing documentation, specifications, decisions, README, playbooks, or multi-line commit messages: `.pandino/playbooks/writing.md`.
-- Changing documented behavior, making a choice worth recording, or disproving a plausible hypothesis: `.pandino/playbooks/docs.md`.
-- Ending a session or handing work over: skill `pandino-handoff` (`.agents/skills/pandino-handoff/SKILL.md`).
-- Updating Pandino in this repository: skill `pandino-update` (`.agents/skills/pandino-update/SKILL.md`).
+- Starting or resuming work in this repository: skill `rig-pickup` (`.agents/skills/rig-pickup/SKILL.md`).
+- Planning substantial implementation, handing it to the `implementer`, or closing it: `.rig/playbooks/workflow.md`.
+- Launching or briefing reviewers, or handling their findings: `.rig/playbooks/review.md`.
+- Reviewing as a reviewer: `.rig/playbooks/reviewing.md`.
+- Designing new modules, public interfaces, or types that cross a module boundary: `.rig/playbooks/design.md`.
+- Writing, changing, or reviewing tests, or choosing how to verify a change: `.rig/playbooks/testing.md`.
+- Fixing a bug, or a failure whose cause is unknown: `.rig/playbooks/debugging.md`.
+- Writing or editing documentation, specifications, decisions, README, playbooks, or multi-line commit messages: `.rig/playbooks/writing.md`.
+- Changing documented behavior, making a choice worth recording, or disproving a plausible hypothesis: `.rig/playbooks/docs.md`.
+- Ending a session or handing work over: skill `rig-handoff` (`.agents/skills/rig-handoff/SKILL.md`).
+- Updating Rig in this repository: skill `rig-update` (`.agents/skills/rig-update/SKILL.md`).
 
-The project section below the project marker may add rules to any playbook and list the project's own playbooks with their triggers; follow those lines as well. When one kind of work keeps recurring in a project, write a playbook for it outside `.pandino/`, which the installer overwrites, and add its trigger line there.
+The project section below the project marker may add rules to any playbook and list the project's own playbooks with their triggers; follow those lines as well. When one kind of work keeps recurring in a project, write a playbook for it outside `.rig/`, which the installer overwrites, and add its trigger line there.
 
 ## Definition of done
 
@@ -103,7 +103,7 @@ Choose verification depth by the decision the artifact must support. Exploration
 
 A shipping change is complete when its behavior satisfies the requirement, the implementation reads plainly, public contracts are typed, meaningful behavior is tested (with a regression test written before the fix for a reproducible bug), and the project's applicable formatter, linter, type checker, and tests all pass. Remove dead code, secrets, debug output, and speculative machinery before completion.
 
-How to choose and judge the evidence: `.pandino/playbooks/testing.md`.
+How to choose and judge the evidence: `.rig/playbooks/testing.md`.
 
 <!-- Project-specific sections go below this line: toolchain, domain context,
      infra conventions, playbook additions. Keep them short; the principles

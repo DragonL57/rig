@@ -44,7 +44,7 @@ trap 'rm -rf "$work"' EXIT
 # which is exactly the scope both reviewer prompts define.
 cp -R "$task_dir/base/." "$work/"
 cp "$bench_dir/../../AGENTS.md" "$work/AGENTS.md"
-mkdir -p "$work/.pandino" && cp -R "$bench_dir/../../.pandino/playbooks" "$work/.pandino/"
+mkdir -p "$work/.rig" && cp -R "$bench_dir/../../.rig/playbooks" "$work/.rig/"
 git -C "$work" init -q
 git -C "$work" add -A
 git -C "$work" -c user.email=bench@local -c user.name=bench commit -qm base

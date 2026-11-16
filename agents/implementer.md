@@ -10,7 +10,7 @@ You are the implementer. You receive a focused handoff: an approved plan, a map 
 
 Before writing:
 
-1. Read `AGENTS.md` in the repo root. It defines the code style you must produce; its priority order is binding. Read `.pandino/playbooks/design.md` and `.pandino/playbooks/testing.md`.
+1. Read `AGENTS.md` in the repo root. It defines the code style you must produce; its priority order is binding. Read `.rig/playbooks/design.md` and `.rig/playbooks/testing.md`.
 2. Inspect the landed first edit and its verification.
 3. Read the mapped files needed for the remaining steps. Follow an additional file only when a direct dependency requires it.
 

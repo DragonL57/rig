@@ -1,6 +1,6 @@
-# Pandino model benchmarks
+# Rig model benchmarks
 
-Measures which models fit Pandino agent roles on this machine through headless Pi. Results feed routing suggestions in [`NOTES.md`](../NOTES.md).
+Measures which models fit Rig agent roles on this machine through headless Pi. Results feed routing suggestions in [`NOTES.md`](../NOTES.md).
 
 ## How it works
 
@@ -15,7 +15,7 @@ pi -p --no-session --no-context-files --no-extensions --no-skills --mode json \
 The temporary workdir separates fixtures. Reviewers retain normal bash access to the host filesystem and processes; the workdir and read-only instructions provide no operating-system containment. The [Haiku screen](review/results/haiku55-test-review.md) was stopped after an executed cleanup targeted processes by command text and paths through a shared `/tmp` glob.
 
 - The role prompt is the agent's markdown from `agents/`, frontmatter stripped. Each `bench/review/prompts/<role>.md` is a deterministic copy of `agents/<role>-reviewer.md`; regenerate it with `awk '/^---$/{n++; next} n>=2' agents/<role>-reviewer.md > bench/review/prompts/<role>.md`. `run_one.sh` refuses a review run when the copy differs.
-- The task runs in a temp workdir seeded with the task's files plus the kit `AGENTS.md` and `.pandino/playbooks/`. `--no-context-files` keeps pi from loading `AGENTS.md` on its own, because `pi-subagents` strips it from specialists too: the model sees only what its role prompt tells it to read, as in a real Pandino repo.
+- The task runs in a temp workdir seeded with the task's files plus the kit `AGENTS.md` and `.rig/playbooks/`. `--no-context-files` keeps pi from loading `AGENTS.md` on its own, because `pi-subagents` strips it from specialists too: the model sees only what its role prompt tells it to read, as in a real Rig repo.
 - `--no-extensions` keeps the environment clean but also unloads the ollama-cloud provider; the harness re-adds only that extension for `ollama-cloud/*` models.
 - Each contestant has a 600-second deadline enforced by `bench/run_with_timeout.py`, using Python and POSIX process groups. At timeout or cancellation it captures descendant groups, sends termination, then kills remaining groups. This covers Pi's separately grouped tool commands while they remain descendants; a process that has already reparented itself is outside the guarantee. Timeout exits with status 124 and preserves the raw output as an incomplete attempt. The wrapper uses no external `timeout` executable. Verify it with `python3 tests/test_bench_timeout.py` before paid runs.
 - The JSON transcript is stored under `results/raw/` and mined for token counts and cost (`summarize.py --one`).

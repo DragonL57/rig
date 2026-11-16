@@ -1,5 +1,5 @@
 ---
-name: pandino-handoff
+name: rig-handoff
 description: Replace the operator's Backlog session pickup snapshot so the next session can resume. Use at the end of a session, before an explicit handoff, or after a substantial implementation is verified.
 ---
 

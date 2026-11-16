@@ -3,14 +3,14 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
-# The Pandino-owned part of an AGENTS.md: everything above the project marker.
+# The Rig-owned part of an AGENTS.md: everything above the project marker.
 # An agent file as the kit ships it: the installed copy differs only by the
 # model and thinking lines the installer pins in.
 agent_without_pin() {
     grep -v -e '^model: ' -e '^thinking: ' "$1"
 }
 core_agents() {
-    awk '/<!-- Project-specific/ || /<!-- pandino:/ || /<!-- BACKLOG.MD GUIDELINES/ { exit } { print }' "$1" \
+    awk '/<!-- Project-specific/ || /<!-- rig:/ || /<!-- BACKLOG.MD GUIDELINES/ { exit } { print }' "$1" \
         | sed -e :a -e '/^$/{$d;N;ba' -e '}'
 }
 copy_kit() {
@@ -23,7 +23,7 @@ copy_kit() {
         "$repo_dir/install.sh" \
         "$repo_dir/models.sh" \
         "$destination/"
-    cp -R "$repo_dir/agents" "$repo_dir/.pandino" "$repo_dir/.agents" "$destination/"
+    cp -R "$repo_dir/agents" "$repo_dir/.rig" "$repo_dir/.agents" "$destination/"
 }
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -176,23 +176,23 @@ if grep -q '^model: ' "$fresh_target/.pi/agents/fallback-runner.md"; then
     echo "FAIL: fresh fallback-runner has a model pin" >&2
     exit 1
 fi
-[ ! -e "$fresh_target/.pandino/merge" ]
-diff -r "$repo_dir/.pandino/playbooks" "$fresh_target/.pandino/playbooks" > /dev/null
+[ ! -e "$fresh_target/.rig/merge" ]
+diff -r "$repo_dir/.rig/playbooks" "$fresh_target/.rig/playbooks" > /dev/null
 diff -r "$repo_dir/.agents/skills" "$fresh_target/.agents/skills" > /dev/null
-[ ! -e "$fresh_target/.pandino/snippets" ]
+[ ! -e "$fresh_target/.rig/snippets" ]
 [ ! -e "$fresh_target/.claude/skills" ]
 cat > "$tmp_dir/expected-install.json" <<EOF
 {
-  "repository": "https://github.com/wtfzambo/pandino",
+  "repository": "https://github.com/DragonL57/rig",
   "revision": "$kit_revision"
 }
 EOF
-cmp -s "$tmp_dir/expected-install.json" "$fresh_target/.pandino/install.json"
-cmp -s "$repo_dir/check-update" "$fresh_target/.pandino/check-update"
-[ -x "$fresh_target/.pandino/check-update" ]
-grep -F "Pandino kit revision — ${kit_revision:0:7}" "$tmp_dir/fresh.out" > /dev/null
-grep -F ".pandino/install.json" "$tmp_dir/fresh.out" > /dev/null
-grep -F ".pandino/check-update" "$tmp_dir/fresh.out" > /dev/null
+cmp -s "$tmp_dir/expected-install.json" "$fresh_target/.rig/install.json"
+cmp -s "$repo_dir/check-update" "$fresh_target/.rig/check-update"
+[ -x "$fresh_target/.rig/check-update" ]
+grep -F "Rig kit revision — ${kit_revision:0:7}" "$tmp_dir/fresh.out" > /dev/null
+grep -F ".rig/install.json" "$tmp_dir/fresh.out" > /dev/null
+grep -F ".rig/check-update" "$tmp_dir/fresh.out" > /dev/null
 
 # A failed run after the core files have begun must not replace prior provenance.
 mkdir "$tmp_dir/failing-bin"
@@ -207,13 +207,13 @@ exit 0
 STUB
 chmod +x "$tmp_dir/failing-bin/pi"
 failed_target="$tmp_dir/failed"
-mkdir -p "$failed_target/.pandino"
-printf 'old manifest\n' > "$failed_target/.pandino/install.json"
-printf 'old checker\n' > "$failed_target/.pandino/check-update"
-chmod 640 "$failed_target/.pandino/install.json"
-chmod 700 "$failed_target/.pandino/check-update"
-cp "$failed_target/.pandino/install.json" "$tmp_dir/sentinel-install.json"
-cp "$failed_target/.pandino/check-update" "$tmp_dir/sentinel-check-update"
+mkdir -p "$failed_target/.rig"
+printf 'old manifest\n' > "$failed_target/.rig/install.json"
+printf 'old checker\n' > "$failed_target/.rig/check-update"
+chmod 640 "$failed_target/.rig/install.json"
+chmod 700 "$failed_target/.rig/check-update"
+cp "$failed_target/.rig/install.json" "$tmp_dir/sentinel-install.json"
+cp "$failed_target/.rig/check-update" "$tmp_dir/sentinel-check-update"
 if env PATH="$tmp_dir/failing-bin:$tmp_dir/bin:$PATH" \
     bash "$repo_dir/install.sh" "$failed_target" --no-input > "$tmp_dir/failed.out" 2>&1
 then
@@ -221,9 +221,9 @@ then
     exit 1
 fi
 [ -f "$failed_target/AGENTS.md" ]
-cmp -s "$tmp_dir/sentinel-install.json" "$failed_target/.pandino/install.json"
-cmp -s "$tmp_dir/sentinel-check-update" "$failed_target/.pandino/check-update"
-"$python_bin" - "$failed_target/.pandino/install.json" "$failed_target/.pandino/check-update" <<'PY'
+cmp -s "$tmp_dir/sentinel-install.json" "$failed_target/.rig/install.json"
+cmp -s "$tmp_dir/sentinel-check-update" "$failed_target/.rig/check-update"
+"$python_bin" - "$failed_target/.rig/install.json" "$failed_target/.rig/check-update" <<'PY'
 import os
 import stat
 import sys
@@ -239,7 +239,7 @@ self_kit="$tmp_dir/self-kit"
 copy_kit "$self_kit"
 mkdir "$self_kit/backlog"
 bash "$self_kit/install.sh" "$self_kit" --no-input > "$tmp_dir/self.out"
-diff -r "$repo_dir/.pandino/playbooks" "$self_kit/.pandino/playbooks" > /dev/null
+diff -r "$repo_dir/.rig/playbooks" "$self_kit/.rig/playbooks" > /dev/null
 diff -r "$repo_dir/.agents/skills" "$self_kit/.agents/skills" > /dev/null
 
 # The kit's own Corrections rows stay in the kit: a fresh install gets the
@@ -271,20 +271,20 @@ mkdir "$non_git_target"
 bash "$non_git_kit/install.sh" "$non_git_target" --no-input > "$tmp_dir/non-git.out"
 cat > "$tmp_dir/unknown-install.json" <<'EOF'
 {
-  "repository": "https://github.com/wtfzambo/pandino",
+  "repository": "https://github.com/DragonL57/rig",
   "revision": null
 }
 EOF
-cmp -s "$tmp_dir/unknown-install.json" "$non_git_target/.pandino/install.json"
-grep -F "Pandino kit revision — unknown" "$tmp_dir/non-git.out" > /dev/null
+cmp -s "$tmp_dir/unknown-install.json" "$non_git_target/.rig/install.json"
+grep -F "Rig kit revision — unknown" "$tmp_dir/non-git.out" > /dev/null
 
 # A curl-piped install records the commit it resolved and fetches that exact
 # archive. When the API is unavailable, it keeps the branch archive fallback.
 remote_sha="1234567890abcdef1234567890abcdef12345678"
 remote_newer_sha="1234567000000000000000000000000000000000"
 archive_source="$tmp_dir/archive-source"
-copy_kit "$archive_source/pandino"
-tar -czf "$tmp_dir/pandino.tar.gz" -C "$archive_source" pandino
+copy_kit "$archive_source/rig"
+tar -czf "$tmp_dir/rig.tar.gz" -C "$archive_source" rig
 mkdir "$tmp_dir/remote-bin"
 cat > "$tmp_dir/remote-bin/curl" <<'STUB'
 #!/bin/sh
@@ -308,7 +308,7 @@ if [ -n "$output" ]; then
 fi
 printf '%s\n' "$url" >> "$REMOTE_LOG"
 case "$url" in
-    *api.github.com/repos/wtfzambo/pandino/git/ref/heads/main)
+    *api.github.com/repos/DragonL57/rig/git/ref/heads/main)
         [ "${REMOTE_API_MODE:-ok}" = fail ] && exit 1
         if [ -n "${REMOTE_API_RESPONSE:-}" ]; then
             printf '%s\n' "$REMOTE_API_RESPONSE"
@@ -316,7 +316,7 @@ case "$url" in
             printf '{"object":{"sha":"%s"}}\n' "$REMOTE_SHA"
         fi
         ;;
-    *codeload.github.com/wtfzambo/pandino/tar.gz/*)
+    *codeload.github.com/DragonL57/rig/tar.gz/*)
         cat "$REMOTE_ARCHIVE"
         ;;
     *)
@@ -330,18 +330,18 @@ mkdir "$remote_target"
 : > "$tmp_dir/remote.log"
 /bin/cat "$repo_dir/install.sh" | env \
     PATH="$tmp_dir/remote-bin:$PATH" \
-    REMOTE_ARCHIVE="$tmp_dir/pandino.tar.gz" \
+    REMOTE_ARCHIVE="$tmp_dir/rig.tar.gz" \
     REMOTE_LOG="$tmp_dir/remote.log" \
     REMOTE_SHA="$remote_sha" \
     bash -s -- "$remote_target" --no-input > "$tmp_dir/remote.out"
 cat > "$tmp_dir/remote-install.json" <<EOF
 {
-  "repository": "https://github.com/wtfzambo/pandino",
+  "repository": "https://github.com/DragonL57/rig",
   "revision": "$remote_sha"
 }
 EOF
-cmp -s "$tmp_dir/remote-install.json" "$remote_target/.pandino/install.json"
-grep -F "codeload.github.com/wtfzambo/pandino/tar.gz/$remote_sha" "$tmp_dir/remote.log" > /dev/null
+cmp -s "$tmp_dir/remote-install.json" "$remote_target/.rig/install.json"
+grep -F "codeload.github.com/DragonL57/rig/tar.gz/$remote_sha" "$tmp_dir/remote.log" > /dev/null
 
 remote_fallback_target="$tmp_dir/remote-fallback"
 mkdir "$remote_fallback_target"
@@ -349,12 +349,12 @@ mkdir "$remote_fallback_target"
 /bin/cat "$repo_dir/install.sh" | env \
     PATH="$tmp_dir/remote-bin:$PATH" \
     REMOTE_API_MODE=fail \
-    REMOTE_ARCHIVE="$tmp_dir/pandino.tar.gz" \
+    REMOTE_ARCHIVE="$tmp_dir/rig.tar.gz" \
     REMOTE_LOG="$tmp_dir/remote-fallback.log" \
     REMOTE_SHA="$remote_sha" \
     bash -s -- "$remote_fallback_target" --no-input > "$tmp_dir/remote-fallback.out"
-cmp -s "$tmp_dir/unknown-install.json" "$remote_fallback_target/.pandino/install.json"
-grep -F "codeload.github.com/wtfzambo/pandino/tar.gz/refs/heads/main" \
+cmp -s "$tmp_dir/unknown-install.json" "$remote_fallback_target/.rig/install.json"
+grep -F "codeload.github.com/DragonL57/rig/tar.gz/refs/heads/main" \
     "$tmp_dir/remote-fallback.log" > /dev/null
 
 remote_malformed_target="$tmp_dir/remote-malformed"
@@ -363,22 +363,22 @@ mkdir "$remote_malformed_target"
 /bin/cat "$repo_dir/install.sh" | env \
     PATH="$tmp_dir/remote-bin:$PATH" \
     REMOTE_API_RESPONSE='{"object":{"sha":"not-a-revision"}}' \
-    REMOTE_ARCHIVE="$tmp_dir/pandino.tar.gz" \
+    REMOTE_ARCHIVE="$tmp_dir/rig.tar.gz" \
     REMOTE_LOG="$tmp_dir/remote-malformed.log" \
     REMOTE_SHA="$remote_sha" \
     bash -s -- "$remote_malformed_target" --no-input > "$tmp_dir/remote-malformed.out"
-cmp -s "$tmp_dir/unknown-install.json" "$remote_malformed_target/.pandino/install.json"
-grep -F "codeload.github.com/wtfzambo/pandino/tar.gz/refs/heads/main" \
+cmp -s "$tmp_dir/unknown-install.json" "$remote_malformed_target/.rig/install.json"
+grep -F "codeload.github.com/DragonL57/rig/tar.gz/refs/heads/main" \
     "$tmp_dir/remote-malformed.log" > /dev/null
 
 # The installed checker reports its three stable statuses and never changes
 # the target tree, even when the network response is unusable.
-checker="$remote_target/.pandino/check-update"
-cp "$remote_target/.pandino/install.json" "$tmp_dir/checker-manifest-before"
+checker="$remote_target/.rig/check-update"
+cp "$remote_target/.rig/install.json" "$tmp_dir/checker-manifest-before"
 run_checker() {
     local api_mode="$1" api_response="$2" expected_exit="$3" output="$4" status
     if env PATH="$tmp_dir/remote-bin:$PATH" \
-        REMOTE_ARCHIVE="$tmp_dir/pandino.tar.gz" \
+        REMOTE_ARCHIVE="$tmp_dir/rig.tar.gz" \
         REMOTE_LOG="$tmp_dir/checker.log" \
         REMOTE_SHA="$remote_sha" \
         REMOTE_API_MODE="$api_mode" \
@@ -401,42 +401,42 @@ check_tree_unchanged() {
 }
 : > "$tmp_dir/checker.log"
 check_tree_unchanged ok "" 0 "$tmp_dir/checker-current.out"
-grep -F "Pandino is current: installed ${remote_sha:0:7}, upstream ${remote_sha:0:7}." \
+grep -F "Rig is current: installed ${remote_sha:0:7}, upstream ${remote_sha:0:7}." \
     "$tmp_dir/checker-current.out" > /dev/null
-cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.pandino/install.json"
+cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.rig/install.json"
 
 check_tree_unchanged ok "{\"object\":{\"sha\":\"$remote_newer_sha\"}}" 1 "$tmp_dir/checker-update.out"
-grep -F "Pandino update available: installed ${remote_sha:0:7}, upstream ${remote_newer_sha:0:7}." \
+grep -F "Rig update available: installed ${remote_sha:0:7}, upstream ${remote_newer_sha:0:7}." \
     "$tmp_dir/checker-update.out" > /dev/null
-grep -F "https://github.com/wtfzambo/pandino/compare/$remote_sha...$remote_newer_sha" \
+grep -F "https://github.com/DragonL57/rig/compare/$remote_sha...$remote_newer_sha" \
     "$tmp_dir/checker-update.out" > /dev/null
-cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.pandino/install.json"
+cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.rig/install.json"
 
 check_tree_unchanged fail "" 2 "$tmp_dir/checker-offline.out"
-grep -F "Pandino update status unknown:" "$tmp_dir/checker-offline.out" > /dev/null
-cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.pandino/install.json"
+grep -F "Rig update status unknown:" "$tmp_dir/checker-offline.out" > /dev/null
+cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.rig/install.json"
 
 run_checker ok '{"object":{"sha":"not-a-revision"}}' 2 "$tmp_dir/checker-malformed.out"
-grep -F "Pandino update status unknown:" "$tmp_dir/checker-malformed.out" > /dev/null
-cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.pandino/install.json"
+grep -F "Rig update status unknown:" "$tmp_dir/checker-malformed.out" > /dev/null
+cmp -s "$tmp_dir/checker-manifest-before" "$remote_target/.rig/install.json"
 
-sed '$d' "$tmp_dir/checker-manifest-before" > "$remote_target/.pandino/install.json"
+sed '$d' "$tmp_dir/checker-manifest-before" > "$remote_target/.rig/install.json"
 run_checker ok "" 2 "$tmp_dir/checker-broken-manifest.out"
-grep -F "Pandino update status unknown:" "$tmp_dir/checker-broken-manifest.out" > /dev/null
-cmp -s <(sed '$d' "$tmp_dir/checker-manifest-before") "$remote_target/.pandino/install.json"
+grep -F "Rig update status unknown:" "$tmp_dir/checker-broken-manifest.out" > /dev/null
+cmp -s <(sed '$d' "$tmp_dir/checker-manifest-before") "$remote_target/.rig/install.json"
 
-cp "$tmp_dir/unknown-install.json" "$remote_target/.pandino/install.json"
+cp "$tmp_dir/unknown-install.json" "$remote_target/.rig/install.json"
 run_checker ok "" 2 "$tmp_dir/checker-null.out"
-grep -F "Pandino update status unknown:" "$tmp_dir/checker-null.out" > /dev/null
-cmp -s "$tmp_dir/unknown-install.json" "$remote_target/.pandino/install.json"
+grep -F "Rig update status unknown:" "$tmp_dir/checker-null.out" > /dev/null
+cmp -s "$tmp_dir/unknown-install.json" "$remote_target/.rig/install.json"
 
-# A later successful local run replaces Pandino-owned provenance exactly.
-printf 'old checker\n' > "$remote_target/.pandino/check-update"
-chmod -x "$remote_target/.pandino/check-update"
+# A later successful local run replaces Rig-owned provenance exactly.
+printf 'old checker\n' > "$remote_target/.rig/check-update"
+chmod -x "$remote_target/.rig/check-update"
 bash "$repo_dir/install.sh" "$remote_target" --no-input > "$tmp_dir/remote-rerun.out"
-cmp -s "$tmp_dir/expected-install.json" "$remote_target/.pandino/install.json"
-cmp -s "$repo_dir/check-update" "$remote_target/.pandino/check-update"
-[ -x "$remote_target/.pandino/check-update" ]
+cmp -s "$tmp_dir/expected-install.json" "$remote_target/.rig/install.json"
+cmp -s "$repo_dir/check-update" "$remote_target/.rig/check-update"
+[ -x "$remote_target/.rig/check-update" ]
 
 merge_target="$tmp_dir/merge"
 mkdir -p "$merge_target/.pi/agents"
@@ -447,7 +447,7 @@ cp "$merge_target/.pi/agents/taste-reviewer.md" "$tmp_dir/existing-taste-reviewe
 
 bash "$repo_dir/install.sh" "$merge_target" --no-input > "$tmp_dir/merge.out"
 
-cmp -s "$tmp_dir/expected-install.json" "$merge_target/.pandino/install.json"
+cmp -s "$tmp_dir/expected-install.json" "$merge_target/.rig/install.json"
 # Backlog appends its own block; the project's text stays as it was.
 [ "$(head -1 "$merge_target/AGENTS.md")" = 'existing project instructions' ]
 if grep -qxF '## Core standard' "$merge_target/AGENTS.md"; then
@@ -455,16 +455,16 @@ if grep -qxF '## Core standard' "$merge_target/AGENTS.md"; then
     exit 1
 fi
 cmp -s "$tmp_dir/existing-taste-reviewer.md" "$merge_target/.pi/agents/taste-reviewer.md"
-diff -q <(core_agents "$repo_dir/AGENTS.md") <(core_agents "$merge_target/.pandino/merge/AGENTS.md") > /dev/null
+diff -q <(core_agents "$repo_dir/AGENTS.md") <(core_agents "$merge_target/.rig/merge/AGENTS.md") > /dev/null
 diff -q <(agent_without_pin "$repo_dir/agents/taste-reviewer.md") \
-    <(agent_without_pin "$merge_target/.pandino/merge/agents/taste-reviewer.md") > /dev/null
-grep -E "staged +$merge_target/.pandino/merge/AGENTS.md for $merge_target/AGENTS.md" "$tmp_dir/merge.out" > /dev/null
-grep -E "staged +$merge_target/.pandino/merge/agents/taste-reviewer.md for $merge_target/.pi/agents/taste-reviewer.md" "$tmp_dir/merge.out" > /dev/null
+    <(agent_without_pin "$merge_target/.rig/merge/agents/taste-reviewer.md") > /dev/null
+grep -E "staged +$merge_target/.rig/merge/AGENTS.md for $merge_target/AGENTS.md" "$tmp_dir/merge.out" > /dev/null
+grep -E "staged +$merge_target/.rig/merge/agents/taste-reviewer.md for $merge_target/.pi/agents/taste-reviewer.md" "$tmp_dir/merge.out" > /dev/null
 
-cp "$merge_target/.pandino/merge/AGENTS.md" "$merge_target/AGENTS.md"
+cp "$merge_target/.rig/merge/AGENTS.md" "$merge_target/AGENTS.md"
 cp "$repo_dir/agents/taste-reviewer.md" "$merge_target/.pi/agents/taste-reviewer.md"
 bash "$repo_dir/install.sh" "$merge_target" --no-input > "$tmp_dir/resolved.out"
-[ ! -e "$merge_target/.pandino/merge" ]
+[ ! -e "$merge_target/.rig/merge" ]
 grep -E "unchanged +$merge_target/AGENTS.md" "$tmp_dir/resolved.out" > /dev/null
 # Taking the kit's copy resolves the conflict; the installer then adds the
 # model pin, which is its own line to write.
@@ -495,12 +495,12 @@ fi
 grep -F "What you now have:" "$tmp_dir/fresh.out" > /dev/null
 [ ! -e "$fresh_target/FINDINGS.md" ]
 
-# An install from an earlier version: appended Pandino sections, the old
+# An install from an earlier version: appended Rig sections, the old
 # snippets folder, and project rules. The update removes the sections and the
 # folder, keeps the project rules and Backlog's block, and stages the new core.
 legacy_target="$tmp_dir/legacy"
-mkdir -p "$legacy_target/.pandino/snippets" "$legacy_target/backlog"
-printf '%s\n' 'old snippet' > "$legacy_target/.pandino/snippets/session-continuity.md"
+mkdir -p "$legacy_target/.rig/snippets" "$legacy_target/backlog"
+printf '%s\n' 'old snippet' > "$legacy_target/.rig/snippets/session-continuity.md"
 cat > "$legacy_target/AGENTS.md" <<'LEGACY'
 # AGENTS.md
 
@@ -518,17 +518,17 @@ Run make check.
 stub guidelines
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pandino:document-governance -->
+<!-- rig:document-governance -->
 ## Document governance
 
 Old governance.
 
-<!-- pandino:session-continuity -->
+<!-- rig:session-continuity -->
 ## Session continuity
 
 Old continuity.
 
-<!-- pandino:parallel-agents -->
+<!-- rig:parallel-agents -->
 ## Parallel implementation
 
 ### Foundations first, then parallel
@@ -540,27 +540,27 @@ Old parallel notes.
 Tag before publishing.
 LEGACY
 bash "$repo_dir/install.sh" "$legacy_target" --no-input > "$tmp_dir/legacy.out"
-if grep -qF '<!-- pandino:' "$legacy_target/AGENTS.md" \
+if grep -qF '<!-- rig:' "$legacy_target/AGENTS.md" \
     || grep -qF 'Old governance.' "$legacy_target/AGENTS.md" \
     || grep -qF 'Old continuity.' "$legacy_target/AGENTS.md" \
     || grep -qF 'Old parallel notes.' "$legacy_target/AGENTS.md"
 then
-    echo "FAIL: appended Pandino sections survived the update" >&2
+    echo "FAIL: appended Rig sections survived the update" >&2
     exit 1
 fi
 grep -qxF 'Run make check.' "$legacy_target/AGENTS.md"
 grep -qxF 'Tag before publishing.' "$legacy_target/AGENTS.md"
 grep -qxF 'Old core rules.' "$legacy_target/AGENTS.md"
 [ "$(grep -c 'BACKLOG.MD GUIDELINES START' "$legacy_target/AGENTS.md")" = "1" ]
-[ ! -e "$legacy_target/.pandino/snippets" ]
-diff -q <(core_agents "$repo_dir/AGENTS.md") <(core_agents "$legacy_target/.pandino/merge/AGENTS.md") > /dev/null
-grep -E "removed +earlier appended Pandino sections" "$tmp_dir/legacy.out" > /dev/null
+[ ! -e "$legacy_target/.rig/snippets" ]
+diff -q <(core_agents "$repo_dir/AGENTS.md") <(core_agents "$legacy_target/.rig/merge/AGENTS.md") > /dev/null
+grep -E "removed +earlier appended Rig sections" "$tmp_dir/legacy.out" > /dev/null
 
-# Playbooks and session skills are Pandino's: a re-run restores local edits.
-printf '%s\n' 'local edit' >> "$legacy_target/.pandino/playbooks/testing.md"
-rm -rf "$legacy_target/.agents/skills/pandino-pickup"
+# Playbooks and session skills are Rig's: a re-run restores local edits.
+printf '%s\n' 'local edit' >> "$legacy_target/.rig/playbooks/testing.md"
+rm -rf "$legacy_target/.agents/skills/rig-pickup"
 bash "$repo_dir/install.sh" "$legacy_target" --no-input > "$tmp_dir/legacy2.out"
-diff -r "$repo_dir/.pandino/playbooks" "$legacy_target/.pandino/playbooks" > /dev/null
+diff -r "$repo_dir/.rig/playbooks" "$legacy_target/.rig/playbooks" > /dev/null
 diff -r "$repo_dir/.agents/skills" "$legacy_target/.agents/skills" > /dev/null
 
 # --yes sets up every editor; a re-run leaves an unchanged core alone.
@@ -698,7 +698,7 @@ grep -q "You are the test reviewer" "$yes_target/.claude/agents/test-reviewer.md
 bash "$repo_dir/install.sh" "$yes_target" --yes > "$tmp_dir/yes2.out"
 [ "$(grep -c 'BACKLOG.MD GUIDELINES START' "$yes_target/AGENTS.md")" = "1" ]
 grep -E "unchanged +$yes_target/AGENTS.md" "$tmp_dir/yes2.out" > /dev/null
-[ ! -e "$yes_target/.pandino/merge" ]
+[ ! -e "$yes_target/.rig/merge" ]
 
 # A grilling skill already in pi's global locations is reused, so the
 # project gets no copy of its own.
@@ -881,8 +881,8 @@ if grep -rq "codex-auto-review" "$pin_target/.codex/"; then
 fi
 
 # The assignment is saved, and the matrix is printed once with everything else.
-[ -f "$pin_target/.pandino/models.json" ]
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+[ -f "$pin_target/.rig/models.json" ]
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 saved = json.load(open(sys.argv[1]))
 agents = {"implementer", "taste-reviewer", "spec-reviewer", "docs-reviewer", "test-reviewer", "final-reviewer"}
@@ -930,7 +930,7 @@ grep -F "fallback-runner has no default and requires a call-time model" "$tmp_di
 # A legacy role-keyed file without test review migrates to per-agent entries:
 # reviewer expands to its three agents, the missing test model is resolved,
 # and every effort takes the kit default.
-cat > "$pin_target/.pandino/models.json" <<'JSON'
+cat > "$pin_target/.rig/models.json" <<'JSON'
 {"pi": {"implementer": "openai-codex/gpt-6.1-sol", "reviewer": "ollama-cloud/glm-5.3", "final": "openai-codex/gpt-6-astra"},
  "claude": {"implementer": "sonnet", "reviewer": "opus", "test": "sonnet", "final": "opus"},
  "opencode": {"implementer": "opencode/gpt-6.1-sol", "reviewer": "opencode/deepseek-v4.1-flash", "test": "opencode/gpt-6.1-sol", "final": "opencode/claude-opus-5-5"},
@@ -941,7 +941,7 @@ grep -qx "model: openai-codex/gpt-6.1-sol" "$pin_target/.pi/agents/test-reviewer
 for agent in taste-reviewer spec-reviewer docs-reviewer; do
     grep -qx "model: ollama-cloud/glm-5.3" "$pin_target/.pi/agents/$agent.md"
 done
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 saved = json.load(open(sys.argv[1]))
 assert set(saved["pi"]) == {"implementer", "taste-reviewer", "spec-reviewer", "docs-reviewer", "test-reviewer", "final-reviewer"}, saved["pi"]
@@ -950,7 +950,7 @@ assert saved["pi"]["final-reviewer"] == {"model": "openai-codex/gpt-6-astra", "e
 JSON
 
 # A Pi effort edited by hand before models.json held effort is adopted, not reset.
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 with open(sys.argv[1]) as f:
     saved = json.load(f)
@@ -965,12 +965,12 @@ HOME="$pin_home" bash "$repo_dir/install.sh" "$pin_target" --yes > "$tmp_dir/pin
 grep -qx 'thinking: xhigh' "$pin_target/.pi/agents/final-reviewer.md"
 grep -F "pi final-reviewer: kept installed effort xhigh" "$tmp_dir/pins-adopt.out" > /dev/null
 python3 -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d['pi']['final-reviewer']['effort'] == 'xhigh' else 1)" \
-    "$pin_target/.pandino/models.json"
+    "$pin_target/.rig/models.json"
 
 # Saved efforts are applied per agent in every harness and survive a re-run
 # without staging the Pi agents as conflicts. An effort the harness does not
 # accept is reported and replaced by the kit default.
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 with open(sys.argv[1]) as f:
     saved = json.load(f)
@@ -993,12 +993,12 @@ grep -qx 'reasoningEffort: low' "$pin_target/.opencode/agent/docs-reviewer.md"
 grep -qx 'model_reasoning_effort = "max"' "$pin_target/.codex/agents/final-reviewer.toml"
 grep -qx 'model_reasoning_effort = "low"' "$pin_target/.codex/agents/docs-reviewer.toml"
 grep -F "pi spec-reviewer: effort ultra is not accepted, using the recommended one" "$tmp_dir/pins-effort.out" > /dev/null
-[ ! -e "$pin_target/.pandino/merge/agents/final-reviewer.md" ]
-[ ! -e "$pin_target/.pandino/merge/agents/docs-reviewer.md" ]
+[ ! -e "$pin_target/.rig/merge/agents/final-reviewer.md" ]
+[ ! -e "$pin_target/.rig/merge/agents/docs-reviewer.md" ]
 HOME="$pin_home" bash "$repo_dir/install.sh" "$pin_target" --yes > "$tmp_dir/pins-effort2.out"
 grep -qx 'thinking: max' "$pin_target/.pi/agents/final-reviewer.md"
-[ ! -e "$pin_target/.pandino/merge/agents/final-reviewer.md" ]
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+[ ! -e "$pin_target/.rig/merge/agents/final-reviewer.md" ]
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 saved = json.load(open(sys.argv[1]))
 assert saved["pi"]["final-reviewer"]["effort"] == "max"
@@ -1006,9 +1006,9 @@ assert saved["pi"]["spec-reviewer"]["effort"] == "high"
 JSON
 
 # Saved choices of current models remain authoritative, including ones that
-# are not the recommendation. Rewriting the pin updates Pandino-owned output
+# are not the recommendation. Rewriting the pin updates Rig-owned output
 # without staging a conflict.
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 with open(sys.argv[1]) as f:
     saved = json.load(f)
@@ -1049,7 +1049,7 @@ done
 
 # A saved superseded model is replaced by the current recommendation, and the
 # recap names the replacement.
-python3 - "$pin_target/.pandino/models.json" <<'JSON'
+python3 - "$pin_target/.rig/models.json" <<'JSON'
 import json, sys
 with open(sys.argv[1]) as f:
     saved = json.load(f)
@@ -1069,15 +1069,15 @@ if grep -q '^model: ' "$pin_target/.pi/agents/fallback-runner.md"; then
     exit 1
 fi
 python3 -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if all(len(entries) == 6 and 'fallback-runner' not in entries for entries in d.values()) else 1)" \
-    "$pin_target/.pandino/models.json"
-[ ! -e "$pin_target/.pandino/merge/agents/taste-reviewer.md" ]
-[ ! -e "$pin_target/.pandino/merge/agents/test-reviewer.md" ]
+    "$pin_target/.rig/models.json"
+[ ! -e "$pin_target/.rig/merge/agents/taste-reviewer.md" ]
+[ ! -e "$pin_target/.rig/merge/agents/test-reviewer.md" ]
 
 # A real local edit still wins over the kit.
 printf '\nLocal house rule.\n' >> "$pin_target/.pi/agents/implementer.md"
 HOME="$pin_home" bash "$repo_dir/install.sh" "$pin_target" --yes > "$tmp_dir/pins3.out"
 grep -qF "Local house rule." "$pin_target/.pi/agents/implementer.md"
-[ -f "$pin_target/.pandino/merge/agents/implementer.md" ]
+[ -f "$pin_target/.rig/merge/agents/implementer.md" ]
 
 # No catalogue to read: say so rather than pinning a model that cannot run.
 bare_target="$tmp_dir/bare"
@@ -1166,7 +1166,7 @@ grep -qx "model: anthropic/claude-sonnet-5-5" "$custom_target/.pi/agents/test-re
 grep -qx "model: anthropic/claude-opus-5-5" "$custom_target/.pi/agents/final-reviewer.md"
 grep -qx "thinking: medium" "$custom_target/.pi/agents/final-reviewer.md"
 python3 -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d['pi']['docs-reviewer'] == {'model': 'ollama-cloud/deepseek-v4.1-flash', 'effort': 'high'} else 1)" \
-    "$custom_target/.pandino/models.json"
+    "$custom_target/.rig/models.json"
 
 if find "$tmp_dir" -name FINDINGS.md -print -quit | grep -q .; then
     echo "FAIL: installer generated a FINDINGS.md file" >&2

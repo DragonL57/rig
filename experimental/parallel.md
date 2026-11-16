@@ -28,4 +28,4 @@ Write mandates that name each agent's files, assign the leftovers to yourself, a
 
 ## Match review depth to review cost
 
-For substantial slices, run the relevant reviewers when their independent evidence helps, following `.pandino/playbooks/review.md`: taste and spec for implementation or scope, and test for relevant behavior or evidence changes. Run `final-reviewer` when whole-branch composition or end-to-end value could change the merge decision. That deep pass surfaces cross-slice contradictions such as stale user-facing copy or disagreeing constants that per-slice reviews cannot see.
+For substantial slices, run the relevant reviewers when their independent evidence helps, following `.rig/playbooks/review.md`: taste and spec for implementation or scope, and test for relevant behavior or evidence changes. Run `final-reviewer` when whole-branch composition or end-to-end value could change the merge decision. That deep pass surfaces cross-slice contradictions such as stale user-facing copy or disagreeing constants that per-slice reviews cannot see.

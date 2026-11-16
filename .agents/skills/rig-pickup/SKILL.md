@@ -1,6 +1,6 @@
 ---
-name: pandino-pickup
-description: Resume project work from the operator's Backlog session pickup snapshot. Use at the start or resumption of work in a Pandino repository, or when the user asks where things stand.
+name: rig-pickup
+description: Resume project work from the operator's Backlog session pickup snapshot. Use at the start or resumption of work in a Rig repository, or when the user asks where things stand.
 ---
 
 # Session pickup
@@ -17,4 +17,4 @@ At the start or resumption of project work:
 
 To read another branch's snapshot without switching, use `git show <branch>:"backlog/tasks/task-1 - Session-pickup-—-<name>.md"`; Backlog's browser resolves same-ID variants to one task and cannot select another branch's version while a working-copy version exists.
 
-When the session ends or work is handed over, replace the snapshot with the skill `pandino-handoff`.
+When the session ends or work is handed over, replace the snapshot with the skill `rig-handoff`.
