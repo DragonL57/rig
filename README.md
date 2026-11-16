@@ -1,10 +1,10 @@
 # rig
 
-A fork of [wtfzambo/pandino](https://github.com/wtfzambo/pandino), renamed to rig. `origin` is this fork; `upstream` is the original.
+A fork of [wtfzambo/pandino](https://github.com/wtfzambo/pandino), renamed to rig.
 
 **Keep your AI agents writing code you can still fix at 3am, two years from now.**
 
-A rig is not clever. It is a few parts bolted together so one person can fix it in a yard, it still runs after the paint is gone, and it will take you up a mountain. That is the standard here.
+The old van is not fast and not clever. It is simple enough that one person can fix it in a yard, it still runs after a decade of hard use, and it will take you up a mountain. That is the standard here.
 
 Coding agents pull the other way. Ask for a function and you get a class hierarchy; ask for a fix and you get a refactor; ask for a feature and you get configuration for five you never wanted. It all works on the day it is written. Then you come back in six months, and nobody — you or the next agent — can tell what any of it is for.
 
@@ -23,7 +23,7 @@ Rig is the counterweight. It gives your agents one set of rules about what good 
 - Reviews take an extra minute when the slice warrants them.
 - Some of your existing code will look worse once something is checking.
 
-If you want the intergalactic rocket, this is the wrong kit. Build the rig that gets you there.
+If you want the intergalactic rocket, this is the wrong kit. Build the small thing that gets you there.
 
 ## Install
 
@@ -135,7 +135,7 @@ To test unpublished Rig changes, run a local checkout's installer instead of the
 
 ## Staying current with upstream
 
-This is a fork of [wtfzambo/pandino](https://github.com/wtfzambo/pandino). `origin` is this repository; `upstream` is the original.
+`origin` is this repository; `upstream` is the original.
 
 ```bash
 git fetch upstream
@@ -146,6 +146,12 @@ Empty output means this fork is level with the original. To take the changes:
 
 ```bash
 git rebase upstream/main
+```
+
+The rebase rewrites your local commits, so `origin` needs the result:
+
+```bash
+git push --force-with-lease origin main
 ```
 
 The rename lives in one commit, so the rebase replays it onto whatever upstream changed. Keep it that way. A content change mixed into `chore: rename pandino to rig` turns every future upstream update into a manual conflict.
