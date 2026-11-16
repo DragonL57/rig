@@ -4,7 +4,7 @@ title: Drop the MCP gateway from every subagent
 status: To Do
 assignee: []
 created_date: '2026-11-16T04:46:00Z'
-updated_date: '2026-11-16T05:01:00Z'
+updated_date: '2026-11-16T05:03:00Z'
 labels: []
 dependencies: []
 ordinal: 42000
@@ -12,10 +12,10 @@ ordinal: 42000
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Every agent file carries exclude_extensions: pi-mcp-adapter.
-- [ ] #2 A bare implementer keeps replace, replace_match, and insert, has no mcp or chrome_devtools tool, and starts at about 5.6k tokens instead of 29.1k.
-- [ ] #3 tool_search returns no matching tools for a chrome devtools query, so the deferred path cannot pull the servers back.
-- [ ] #4 A bare spec-reviewer keeps read and bash, has no mcp tool, and fires no extension-error.
+- [x] #1 Every agent file carries exclude_extensions: pi-mcp-adapter.
+- [x] #2 A bare implementer keeps replace, replace_match, and insert, has no mcp or chrome_devtools tool, and starts at about 5.6k tokens instead of 29.1k.
+- [x] #3 tool_search returns no matching tools for a chrome devtools query, so the deferred path cannot pull the servers back.
+- [x] #4 A bare spec-reviewer keeps read and bash, has no mcp tool, and fires no extension-error.
 <!-- AC:END -->
 
 ## Implementation Plan

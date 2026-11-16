@@ -4,7 +4,7 @@ title: Write the plan, review it, and get approval before implementation
 status: To Do
 assignee: []
 created_date: '2026-11-16T04:37:00Z'
-updated_date: '2026-11-16T04:38:00Z'
+updated_date: '2026-11-16T05:03:00Z'
 labels: []
 dependencies: []
 ordinal: 40000
@@ -12,10 +12,10 @@ ordinal: 40000
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The workflow playbook creates the task and writes the plan before any code exists
-- [ ] #2 The plan goes to a reviewer before the user sees it for approval
-- [ ] #3 The user approves the reviewed plan before the first edit
-- [ ] #4 AGENTS.md gates on the written plan and the Tier 0 execute line no longer outranks it
+- [x] #1 The workflow playbook creates the task and writes the plan before any code exists
+- [x] #2 The plan goes to a reviewer before the user sees it for approval
+- [x] #3 The user approves the reviewed plan before the first edit
+- [x] #4 AGENTS.md gates on the written plan and the Tier 0 execute line no longer outranks it
 <!-- AC:END -->
 
 ## Implementation Plan

@@ -4,7 +4,7 @@ title: Install the parallel playbook and mark disjoint slices in the plan
 status: To Do
 assignee: []
 created_date: '2026-11-16T04:45:00Z'
-updated_date: '2026-11-16T04:49:00Z'
+updated_date: '2026-11-16T05:03:00Z'
 labels: []
 dependencies: []
 ordinal: 41000
@@ -12,11 +12,11 @@ ordinal: 41000
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A session reading workflow.md learns that disjoint slices can run in parallel, how to tell they are disjoint, that each slice checks only its own files, and that the parallel path runs no git command.
-- [ ] #2 parallel.md is installed as .rig/playbooks/parallel.md, its header no longer says experimental, it names workflow.md steps 1 and 5, it carries no worktree or foundations-commit instruction, and it carries the shared-artifact, scoped-check, and per-slice-diff rules.
-- [ ] #3 The kit README lists parallel in the playbook table and no longer calls it experimental.
-- [ ] #4 Two implementers run concurrently on disjoint files in one checkout, each slice's check compiles the whole project, neither edits a file outside its set, and the full suite passes after both land.
-- [ ] #5 bash ~/.pi/agent/rig/sync.sh --check is up to date, tests/test_install.sh PASS, and ~/.pi/agent/tests/test_harness.sh reports 0 failed.
+- [x] #1 A session reading workflow.md learns that disjoint slices can run in parallel, how to tell they are disjoint, that each slice checks only its own files, and that the parallel path runs no git command.
+- [x] #2 parallel.md is installed as .rig/playbooks/parallel.md, its header no longer says experimental, it names workflow.md steps 1 and 5, it carries no worktree or foundations-commit instruction, and it carries the shared-artifact, scoped-check, and per-slice-diff rules.
+- [x] #3 The kit README lists parallel in the playbook table and no longer calls it experimental.
+- [x] #4 Two implementers run concurrently on disjoint files in one checkout, each slice's check compiles the whole project, neither edits a file outside its set, and the full suite passes after both land.
+- [x] #5 bash ~/.pi/agent/rig/sync.sh --check is up to date, tests/test_install.sh PASS, and ~/.pi/agent/tests/test_harness.sh reports 0 failed.
 <!-- AC:END -->
 
 ## Implementation Plan
