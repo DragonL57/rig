@@ -772,8 +772,8 @@ grep -q '^sandbox_mode = "read-only"' "$pin_target/.codex/agents/fallback-runner
 # Test review has the same inspection-only boundary in every harness.
 grep -qx 'thinking: high' "$pin_target/.pi/agents/test-reviewer.md"
 # The launch call owns the budget, so no Pi agent may pin one, and every agent
-# may name only a tool pi enables. pi ignores an unknown name silently, so the
-# list is checked in both directions.
+# may name only a tool the kit allows. pi ignores an unknown name silently, so
+# the list is checked in both directions.
 for file in "$pin_target"/.pi/agents/*.md; do
     agent="$(basename "$file" .md)"
     if grep -q '^max_turns:' "$file"; then
@@ -789,18 +789,52 @@ for file in "$pin_target"/.pi/agents/*.md; do
         case "$token" in
             read|bash|write|replace|replace_match|insert) ;;
             *)
-                echo "FAIL: Pi $agent names a tool pi does not enable: $token" >&2
+                echo "FAIL: Pi $agent names a tool the kit does not allow: $token" >&2
                 exit 1
                 ;;
         esac
     done
 done
 # The implementer gets git through bash, so the ban has to be in its prompt.
-grep -q 'Never commit' "$pin_target/.pi/agents/implementer.md"
-# Every tool name the kit may use survives the Claude translation.
+# Two fragments, because the ban is a list and one fragment would survive a
+# sentence trimmed down to "Never commit".
+grep -q 'Never commit' "$pin_target/.pi/agents/implementer.md" || {
+    echo "FAIL: the implementer prompt lost its git ban" >&2
+    exit 1
+}
+grep -q 'push' "$pin_target/.pi/agents/implementer.md" || {
+    echo "FAIL: the implementer prompt no longer bans push" >&2
+    exit 1
+}
+# Every tool name the kit may use survives the Claude translation, and a
+# declared editing tool keeps its agent out of a read-only sandbox.
 . "$repo_dir/harnesses.sh"
-[ "$(claude_tools 'read, bash, write')" = 'Bash,Edit,Read,Write' ]
-[ "$(claude_tools 'read, grep, find, ls, bash')" = 'Bash,Glob,Grep,Read' ]
+[ "$(claude_tools 'read, bash, write')" = 'Bash,Edit,Read,Write' ] || {
+    echo "FAIL: claude_tools does not turn write into Write and Edit" >&2
+    exit 1
+}
+[ "$(claude_tools 'read, replace')" = 'Edit,Read' ] || {
+    echo "FAIL: claude_tools does not turn replace into Edit" >&2
+    exit 1
+}
+[ "$(claude_tools 'read, grep, find, ls, bash')" = 'Bash,Glob,Grep,Read' ] || {
+    echo "FAIL: claude_tools mangles read, grep, find, ls, bash" >&2
+    exit 1
+}
+probe="$(mktemp)"
+printf -- '---\ntools: read, replace\n---\n' > "$probe"
+agent_can_write "$probe" || {
+    echo "FAIL: an agent declaring replace is treated as read-only" >&2
+    rm -f "$probe"
+    exit 1
+}
+printf -- '---\ntools: read, bash\n---\n' > "$probe"
+if agent_can_write "$probe"; then
+    echo "FAIL: an agent declaring only read and bash is treated as a writer" >&2
+    rm -f "$probe"
+    exit 1
+fi
+rm -f "$probe"
 grep -qx 'tools: Bash,Read' "$pin_target/.claude/agents/test-reviewer.md"
 # The implementer writes files, so no harness may hand it a read-only sandbox.
 if grep -q '^sandbox_mode = "read-only"' "$pin_target/.codex/agents/implementer.toml"; then

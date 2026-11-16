@@ -80,9 +80,21 @@ write_pi_agent() {
 claude_tools() {
     case "$1" in
         all|"") return ;;
-        *) echo "$1" | sed -e 's/replace_match/Edit/; s/replace/Edit/; s/insert/Edit/; s/write/Write,Edit/; s/read/Read/; s/grep/Grep/; s/find/Glob/; s/ls/Glob/; s/bash/Bash/' \
-               | tr ',' '\n' | awk 'NF' | sed 's/^ *//' | sort -u | paste -sd, - ;;
     esac
+    # One token at a time, so a name that contains another name cannot be
+    # rewritten by accident. An unknown name passes through unchanged.
+    printf '%s\n' "$1" | tr ',' '\n' | while read -r tool; do
+        case "$(printf '%s' "$tool" | tr -d ' ')" in
+            "") ;;
+            read) printf 'Read\n' ;;
+            bash) printf 'Bash\n' ;;
+            write) printf 'Write\nEdit\n' ;;
+            replace|replace_match|insert) printf 'Edit\n' ;;
+            grep) printf 'Grep\n' ;;
+            find|ls) printf 'Glob\n' ;;
+            *) printf '%s\n' "$tool" ;;
+        esac
+    done | sort -u | paste -sd, -
 }
 
 write_claude_agent() {
