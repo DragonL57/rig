@@ -135,6 +135,25 @@ To test unpublished Rig changes, run a local checkout's installer instead of the
 /path/to/rig/install.sh /path/to/target-repo
 ```
 
+## Staying current with upstream
+
+This is a fork of [wtfzambo/pandino](https://github.com/wtfzambo/pandino). `origin` is this repository; `upstream` is the original.
+
+```bash
+git fetch upstream
+git log --oneline HEAD..upstream/main
+```
+
+Empty output means this fork is level with the original. To take the changes:
+
+```bash
+git rebase upstream/main
+```
+
+The rename lives in one commit, so the rebase replays it onto whatever upstream changed. Keep it that way. A content change mixed into `chore: rename pandino to rig` turns every future upstream update into a manual conflict.
+
+`backlog/` and the bench results keep the old name on purpose. They record what happened under it.
+
 ## How the workflow runs
 
 `AGENTS.md` holds the rules that apply on every turn: how code is written, how prose is written, how agents behave, and when work is done. Everything else is a playbook the agent reads when its index line says the work calls for it, so a quick question carries none of the review policy and a branch-wide change carries all of it.
