@@ -4,7 +4,7 @@ Use this playbook to write, change, or review tests, and to choose how to verify
 
 ## Choose the evidence by purpose
 
-Choose verification depth by the decision the artifact must support, as `AGENTS.md` requires. Shipping code gets meaningful tests, applicable lint and type checks, and regression-first bug fixes. Explorations are done when they answer their question. Behavior under exploration gets the narrowest test or probe that answers it, and delivery standards apply once the artifact is promoted into shipping code.
+Choose verification depth by the decision the artifact must support, as the **Verify** phase in `AGENTS.md` states. Shipping code gets meaningful tests, applicable lint and type checks, and regression-first bug fixes. Explorations are done when they answer their question. Behavior under exploration gets the narrowest test or probe that answers it, and delivery standards apply once the artifact is promoted into shipping code.
 
 For shipping code, tests are maintained evidence for observable product promises. Prefer integration tests at stable boundaries, keep end-to-end coverage to critical user paths, and unit-test pure logic, tricky edge cases, and decisions hard to reach through a boundary.
 

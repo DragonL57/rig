@@ -158,6 +158,17 @@ The rename lives in one commit, so the rebase replays it onto whatever upstream 
 
 `backlog/` and the bench results keep the old name on purpose. They record what happened under it.
 
+### This checkout also feeds a Pi install
+
+The owner's `~/.pi/agent` renders its playbooks and agents from this checkout, so a change here reaches that install only after one render:
+
+```bash
+~/.pi/agent/rig/sync.sh          # write the install's copy
+~/.pi/agent/rig/sync.sh --check  # report drift, write nothing
+```
+
+`--install-hook` puts that check in this repository's pre-commit hook, and the hook also refuses a commit whose staged playbooks differ from the working tree the render read. Git does not track hooks, so run it once per clone. Edit `.rig/playbooks/` and `agents/` here; a hand edit in the install is drift and the next render overwrites it.
+
 ## How the workflow runs
 
 `AGENTS.md` holds the rules that apply on every turn: how code is written, how prose is written, how agents behave, and when work is done. Everything else is a playbook the agent reads when its index line says the work calls for it, so a quick question carries none of the review policy and a branch-wide change carries all of it.
