@@ -1,12 +1,10 @@
 # rig
 
-<p align="center">
-<img src="imgs/panda.jpg" alt="A Fiat Panda 4x4 parked on a mountainside" width="70%">
-</p>
+A fork of [wtfzambo/pandino](https://github.com/wtfzambo/pandino), renamed to rig. `origin` is this fork; `upstream` is the original.
 
 **Keep your AI agents writing code you can still fix at 3am, two years from now.**
 
-The Fiat Panda is not fast and not clever. It is simple enough that a mechanic in a village with one garage can fix it, it still runs after 400,000 km, and it will take you up a mountain. That is the standard here.
+A rig is not clever. It is a few parts bolted together so one person can fix it in a yard, it still runs after the paint is gone, and it will take you up a mountain. That is the standard here.
 
 Coding agents pull the other way. Ask for a function and you get a class hierarchy; ask for a fix and you get a refactor; ask for a feature and you get configuration for five you never wanted. It all works on the day it is written. Then you come back in six months, and nobody — you or the next agent — can tell what any of it is for.
 
@@ -25,7 +23,7 @@ Rig is the counterweight. It gives your agents one set of rules about what good 
 - Reviews take an extra minute when the slice warrants them.
 - Some of your existing code will look worse once something is checking.
 
-If you want the intergalactic rocket, this is the wrong kit. Build the Panda that gets you there.
+If you want the intergalactic rocket, this is the wrong kit. Build the rig that gets you there.
 
 ## Install
 
