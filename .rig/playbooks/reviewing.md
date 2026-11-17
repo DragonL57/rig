@@ -23,6 +23,8 @@ File each finding under one of three headings:
 - `minor`: every other improvement. Style, readability, naming, structure, and wording are minor even when a project rule covers them.
 - `user decision`: a product, scope, or support choice that the task and specification leave open, such as keeping unrequested behavior or supporting another platform or version. State the options and what each one adds or costs, and leave the choice to the user.
 
+A defect that predates the change is filed as pre-existing, and its fix names the check that makes the class impossible: a lint rule, a type, a dependency rule, or a test.
+
 Minor findings and user decisions alone leave the verdict clean; the orchestrator settles user decisions with the user.
 
 ## Report format
@@ -50,4 +52,4 @@ Use exactly this structure:
 - Turns: <used> of <budget>; timed-out commands: <list or none>
 ```
 
-Order findings by severity and keep certainty (the label) separate from severity (the heading) for must-fix and minor findings. Mark findings that predate the change as pre-existing. Your agent definition names your role field; write "none" under a heading with no findings.
+Order findings by severity and keep certainty (the label) separate from severity (the heading) for must-fix and minor findings. Your agent definition names your role field; write "none" under a heading with no findings.

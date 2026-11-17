@@ -2,11 +2,11 @@
 
 Use this playbook when you launch or brief reviewers and when you handle their findings. Reviewers inspect and report; you, the orchestrator, judge what to act on, and the plan's author defends the plan by default. Reviewers follow `.rig/playbooks/reviewing.md`.
 
-Treat the steps as a checklist. When you skip a step, say why in one line of your reply.
+Every step that applies runs. A delegated change takes the review step. Do not ask the user whether to review. A change whose review step did not run is reported as a defect in the run.
 
 ## Steps
 
-1. **Choose the reviewers.** A plan gets its own review before the user approves it. A delegated change gets `spec-reviewer` and `taste-reviewer` once near the end of a logical slice. The bullets below add reviewers:
+1. **Choose the reviewers.** A plan gets its own review before the user approves it. A delegated change gets `spec-reviewer` and `taste-reviewer` once near the end of a logical slice. The orchestrator never reviews its own change in place of them. The bullets below add reviewers:
    - `test-reviewer` when behavior, tests, test infrastructure, or a shipping-code bug fix warrants evidence review;
    - `docs-reviewer` when a documented rule changed;
    - `uiux-reviewer` when the change adds or alters anything a user sees or operates: a screen, component, layout, style, interface copy, or a flow;
@@ -33,7 +33,7 @@ Budget: <turns>
 
 ## When a reviewer cannot run
 
-Use `fallback-runner` only when a reviewer cannot launch or complete because its provider, quota, session, or model is unavailable. Give it an explicit alternate model (omitting one silently inherits yours), the failed reviewer's agent definition verbatim, the `reviewing.md` playbook beside this one, and the brief. Pass the failed reviewer's turn budget explicitly in the launch call, since `fallback-runner` carries none of its own. Choose a model different from the writer's, and report every substitution to the user.
+Use `fallback-runner` only when a reviewer cannot launch or complete because its provider, quota, session, or model is unavailable. Give it an explicit alternate model (omitting one silently inherits yours), the failed reviewer's agent definition verbatim, the `reviewing.md` playbook beside this one, and the brief. Pass the failed reviewer's turn budget explicitly in the launch call, since `fallback-runner` carries none of its own. Choose a model different from the writer's, and report every substitution to the user. The substitution is reported as a defect in the run, and the review still counts.
 
 ## Limits
 

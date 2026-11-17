@@ -28,6 +28,14 @@ if [ "$shipped_count" -ne "$declared_count" ]; then
     exit 1
 fi
 
+# The kit ships the runtime-verification skill with the driver it tells the
+# reader to copy, so a fresh install can produce runtime evidence.
+if [ ! -f "$repo_dir/.agents/skills/verify-app/SKILL.md" ] \
+    || [ ! -f "$repo_dir/.agents/skills/verify-app/assets/drive.py" ]; then
+    echo "FAIL: the kit ships verify-app without SKILL.md or assets/drive.py" >&2
+    exit 1
+fi
+
 # The Rig-owned part of an AGENTS.md: everything above the project marker.
 # An agent file as the kit ships it: the installed copy differs only by the
 # model and thinking lines the installer pins in.
@@ -194,6 +202,10 @@ grep -qx 'thinking: max' "$fresh_target/.pi/agents/final-reviewer.md"
 diff -q <(core_agents "$repo_dir/AGENTS.md") <(core_agents "$fresh_target/AGENTS.md") > /dev/null
 grep -qxF '## Corrections' "$fresh_target/AGENTS.md"
 grep -qF 'BACKLOG.MD GUIDELINES START' "$fresh_target/AGENTS.md"
+grep -qF 'verify-app' "$fresh_target/AGENTS.md" || {
+    echo "FAIL: the installed AGENTS.md no longer routes runtime evidence to verify-app" >&2
+    exit 1
+}
 [ -d "$fresh_target/backlog" ]
 for agent in $agents_all; do
     diff -q <(agent_without_pin "$repo_dir/agents/$agent.md") \
@@ -224,7 +236,7 @@ case "$uiux_tools" in
         exit 1
         ;;
 esac
-# Wording-drift guards: the prompt has to keep naming the skill it reads and the
+# Skill and prompt wording guards: the prompt has to keep naming the skill it reads
 # marker it writes on an unchecked claim. They prove nothing about behaviour.
 grep -qF 'apple-design' "$fresh_target/.pi/agents/uiux-reviewer.md" || {
     echo "FAIL: uiux-reviewer no longer names the apple-design skill" >&2
@@ -237,6 +249,73 @@ grep -qF 'UNVERIFIED' "$fresh_target/.pi/agents/uiux-reviewer.md" || {
 [ ! -e "$fresh_target/.rig/merge" ]
 diff -r "$repo_dir/.rig/playbooks" "$fresh_target/.rig/playbooks" > /dev/null
 diff -r "$repo_dir/.agents/skills" "$fresh_target/.agents/skills" > /dev/null
+
+# The shipped verify-app is self-contained: it names no path into the author's
+# own pi state and no talk the reader never saw.
+if [ ! -f "$fresh_target/.agents/skills/verify-app/SKILL.md" ] \
+    || [ ! -f "$fresh_target/.agents/skills/verify-app/assets/drive.py" ]; then
+    echo "FAIL: the installed verify-app is missing SKILL.md or assets/drive.py" >&2
+    exit 1
+fi
+if grep -rqF -e '~/.pi/agent' -e 'the talk' "$fresh_target/.agents/skills/verify-app"; then
+    echo "FAIL: the installed verify-app points outside the project" >&2
+    exit 1
+fi
+# Review-step wording guards: a repeated defect routes to a check, the final reviewer
+# asks for one check per shared cause, the review step is not skippable, and the
+# orchestrator never reviews its own change in place of the reviewers.
+grep -qF 'makes the class impossible' "$fresh_target/.rig/playbooks/reviewing.md" || {
+    echo "FAIL: reviewing.md no longer routes a repeated defect to a check" >&2
+    exit 1
+}
+grep -qF 'Every step that applies runs' "$fresh_target/.rig/playbooks/workflow.md" || {
+    echo "FAIL: workflow.md no longer requires every step that applies" >&2
+    exit 1
+}
+grep -qF 'Every step that applies runs' "$fresh_target/.rig/playbooks/review.md" || {
+    echo "FAIL: review.md no longer requires every step that applies" >&2
+    exit 1
+}
+grep -qF 'A delegated change takes the review step' "$fresh_target/.rig/playbooks/workflow.md" || {
+    echo "FAIL: workflow.md no longer says a delegated change takes the review step" >&2
+    exit 1
+}
+grep -qF 'A delegated change takes the review step' "$fresh_target/.rig/playbooks/review.md" || {
+    echo "FAIL: review.md no longer says a delegated change takes the review step" >&2
+    exit 1
+}
+grep -qF 'is reported as a defect in the run' "$fresh_target/.rig/playbooks/workflow.md" || {
+    echo "FAIL: workflow.md no longer reports a change whose review step did not run as a defect in the run" >&2
+    exit 1
+}
+grep -qF 'is reported as a defect in the run' "$fresh_target/.rig/playbooks/review.md" || {
+    echo "FAIL: review.md no longer reports a change whose review step did not run as a defect in the run" >&2
+    exit 1
+}
+grep -qF 'Do not ask the user whether to review' "$fresh_target/.rig/playbooks/workflow.md" || {
+    echo "FAIL: workflow.md no longer forbids asking the user whether to review" >&2
+    exit 1
+}
+grep -qF 'Do not ask the user whether to review' "$fresh_target/.rig/playbooks/review.md" || {
+    echo "FAIL: review.md no longer forbids asking the user whether to review" >&2
+    exit 1
+}
+grep -qF 'The work you do yourself is not the review step' "$fresh_target/.rig/playbooks/workflow.md" || {
+    echo "FAIL: workflow.md no longer says work done in place of a reviewer is not the review step" >&2
+    exit 1
+}
+grep -qF 'and the review still counts' "$fresh_target/.rig/playbooks/review.md" || {
+    echo "FAIL: review.md no longer says a substituted review still counts" >&2
+    exit 1
+}
+grep -qF 'never reviews its own change' "$fresh_target/.rig/playbooks/review.md" || {
+    echo "FAIL: review.md no longer forbids the orchestrator reviewing its own change" >&2
+    exit 1
+}
+grep -qF 'share a cause' "$fresh_target/.pi/agents/final-reviewer.md" || {
+    echo "FAIL: final-reviewer.md no longer asks for one check per shared cause" >&2
+    exit 1
+}
 [ ! -e "$fresh_target/.rig/snippets" ]
 [ ! -e "$fresh_target/.claude/skills" ]
 cat > "$tmp_dir/expected-install.json" <<EOF

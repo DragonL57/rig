@@ -613,6 +613,7 @@ skill_gloss() {
         rig-handoff)      printf 'writes a handover for the next session' ;;
         rig-update)       printf 'updates this kit' ;;
         browser-sessions) printf 'drives a real browser page' ;;
+        verify-app)       printf 'measures a feature in the running app' ;;
     esac
 }
 

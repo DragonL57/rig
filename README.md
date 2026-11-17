@@ -8,7 +8,7 @@ The old van is not fast and not clever. It is simple enough that one person can 
 
 Coding agents pull the other way. Ask for a function and you get a class hierarchy; ask for a fix and you get a refactor; ask for a feature and you get configuration for five you never wanted. It all works on the day it is written. Then you come back in six months, and nobody — you or the next agent — can tell what any of it is for.
 
-Rig is the counterweight. It gives your agents one set of rules about what good code looks like, and a workflow that starts with the smallest slice, keeps evidence proportionate, and brings in independent reviewers when they add value. Nothing here is novel. It is the boring stuff that survives contact with a real codebase.
+Rig is the counterweight. It gives your agents one set of rules about what good code looks like, and a workflow that starts with the smallest slice, keeps evidence proportionate, and runs independent reviewers on every delegated change. Nothing here is novel. It is the boring stuff that survives contact with a real codebase.
 
 ## What you get
 
@@ -20,7 +20,7 @@ Rig is the counterweight. It gives your agents one set of rules about what good 
 ## What it costs
 
 - Your agent will argue for the simpler version when you were expecting the clever one.
-- Reviews take an extra minute when the slice warrants them.
+- Reviews take an extra minute on every delegated change.
 - Some of your existing code will look worse once something is checking.
 
 If you want the intergalactic rocket, this is the wrong kit. Build the small thing that gets you there.
@@ -45,7 +45,7 @@ It asks which editors to set up, then shows the model each specialist will run o
 |---|---|
 | `AGENTS.md` | repo root — the rules every agent reads on every turn, an index of playbooks, and a project section with a Corrections table |
 | playbooks | `.rig/playbooks/` — how-to guides agents read when the index says the work calls for them: workflow, review, reviewing, design, testing, debugging, writing, docs. Rewritten on every install |
-| skills | `.agents/skills/` (and `.claude/skills/` for Claude Code) — `rig-pickup` resumes from the session snapshot, `rig-handoff` replaces it, `rig-update` updates this kit, `browser-sessions` claims a free browser instance before the first browser call. Invoke them by name or let the index trigger them |
+| skills | `.agents/skills/` (and `.claude/skills/` for Claude Code) — `rig-pickup` resumes from the session snapshot, `rig-handoff` replaces it, `rig-update` updates this kit, `browser-sessions` claims a free browser instance before the first browser call, `verify-app` drives the changed feature in the running app and measures it, so a reviewer gets a screenshot and a check instead of a diff. Invoke them by name or let the index trigger them |
 | the eight helpers | whichever you picked: `.pi/agents/`, `.claude/agents/`, `.opencode/agent/`, `.codex/agents/` — seven specialists with a model pinned, plus the unpinned fallback-runner |
 | `models.json` | `.rig/`. Which model and effort each specialist runs on, per editor. Edit it and re-run to change them |
 | `install.json` | `.rig/` — the official repository and exact kit commit from the latest successful install, or an unknown (`null`) revision when it could not be determined |
@@ -62,7 +62,7 @@ The seven specialists, plus the fallback escape hatch:
 - **test-reviewer** — runs when automated evidence could change the merge decision. Judges whether automated evidence is necessary, effective, independent, and proportionate; it does not judge specification correctness.
 - **docs-reviewer** — runs for documented behavior or authority changes, before final review when both run. Catches drift between the final code and its specifications, decisions, procedures, and findings.
 - **final-reviewer** — runs for a change (a branch, a range of commits on `main`, or the working diff) when composition or end-to-end value could change the merge decision. Catches what only shows up with every commit in front of you: a design that drifted, a contract half-updated, an abstraction that later commits made pointless.
-- **fallback-runner** — an inspection-only escape hatch, not an eighth specialist. Use it only when a reviewer cannot launch or complete because its provider, quota, session, or pinned model is unavailable. Give it that reviewer's instructions verbatim, the concrete task context, and an explicit alternate model; report the substitution. It is not a retry for findings you dislike.
+- **fallback-runner** — an inspection-only escape hatch, not an eighth specialist. Use it only when a reviewer cannot launch or complete because its provider, quota, session, or pinned model is unavailable. Give it that reviewer's instructions verbatim, the concrete task context, and an explicit alternate model; record the substitution in the report as a defect in the run, which is still the review step. It is not a retry for findings you dislike.
 
 ### Which model runs each specialist
 
@@ -93,7 +93,7 @@ Install Rig (https://github.com/DragonL57/rig) into this repository.
 
 4. Merge anything in .rig/merge/ into the existing files by hand, following the precedence rules in Rig's README. Keep this repo's own rules below the project marker. Then delete .rig/merge/.
 
-5. Check that it landed: backlog/ exists, AGENTS.md has the playbook index, the project marker, and Backlog's own block, .rig/playbooks/ exists, and .agents/skills/ holds rig-pickup, rig-handoff, rig-update and browser-sessions.
+5. Check that it landed: backlog/ exists, AGENTS.md has the playbook index, the project marker, and Backlog's own block, .rig/playbooks/ exists, and .agents/skills/ holds rig-pickup, rig-handoff, rig-update, browser-sessions and verify-app.
 
 6. For an editor other than pi, select it in the installer or write the same eight helpers where that tool looks for them. Copy the instructions verbatim, pin the seven specialists, and leave `fallback-runner` unpinned. For a tool without subagents, tell me that the workflow will run as one agent taking each role in turn. Install the `apple-design` skill with `npx skills add dickwu/apple-design-skill`: `uiux-reviewer` reads it for Apple's Human Interface Guidelines, and the kit ships no copy of them.
 
@@ -186,7 +186,7 @@ The owner's `~/.pi/agent` renders its playbooks and agents from this checkout, s
 | [docs](.rig/playbooks/docs.md) | changing documented behavior or recording a decision or finding |
 | [parallel](.rig/playbooks/parallel.md) | splitting work across several implementers |
 
-The workflow in short: one agent plans and coordinates, starts from the smallest observable slice, and keeps an action only when the slice needs it. An `implementer` writes every delegated change. Work starts with a written plan carrying a sketch of types and signatures, which a reviewer checks and the user approves; failing tests on the requirement's invariants come next, and the implementer makes them pass. `spec-reviewer` and `taste-reviewer` run on every delegated change once near the end, in a fixed report format, within turn budgets the [bounded review policy](backlog/docs/specs/doc-3%20-%20Bounded-review-policy.md) describes. `uiux-reviewer` joins them when the change alters what a user sees or operates. One commit closes the work, after the spec is done and reviewed. When the user corrects the same kind of mistake twice, the Corrections table in `AGENTS.md` turns it into a proposal to enforce it in code, types, lint, or a test.
+The workflow in short: one agent plans and coordinates, starts from the smallest observable slice, and keeps an action only when the slice needs it. An `implementer` writes every delegated change. Work starts with a written plan carrying a sketch of types and signatures, which a reviewer checks and the user approves; failing tests on the requirement's invariants come next, and the implementer makes them pass. `spec-reviewer` and `taste-reviewer` run on every delegated change once near the end, in a fixed report format, within turn budgets the [bounded review policy](backlog/docs/specs/doc-3%20-%20Bounded-review-policy.md) describes. `uiux-reviewer` joins them when the change alters what a user sees or operates. When the change touches a user-visible feature, the `verify-app` skill produces the runtime evidence: a screenshot and a measured check taken from the running app. One commit closes the work, after the spec is done and reviewed. When the user corrects the same kind of mistake twice, the Corrections table in `AGENTS.md` turns it into a proposal to enforce it in code, types, lint, or a test.
 
 A project adds its own rules and playbooks below the project marker in `AGENTS.md`; files under `.rig/` are rewritten on every install. The [decision behind this layout](backlog/decisions/decision-9%20-%20Split-instructions-into-an-always-on-core-and-on-demand-playbooks.md) records what was rejected and why.
 

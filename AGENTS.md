@@ -96,6 +96,7 @@ Before work that a line below covers, read the named file in full and follow it.
 - Ending a session or handing work over: skill `rig-handoff` (`.agents/skills/rig-handoff/SKILL.md`).
 - Updating Rig in this repository: skill `rig-update` (`.agents/skills/rig-update/SKILL.md`).
 - Driving a browser page, or running a review that needs one: skill `browser-sessions` (`.agents/skills/browser-sessions/SKILL.md`).
+- Producing runtime evidence for a change that touches a user-visible feature: skill `verify-app` (`.agents/skills/verify-app/SKILL.md`).
 
 The project section below the project marker may add rules to any playbook and list the project's own playbooks with their triggers; follow those lines as well. When one kind of work keeps recurring in a project, write a playbook for it outside `.rig/`, which the installer overwrites, and add its trigger line there.
 

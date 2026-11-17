@@ -58,7 +58,7 @@ Read `SKILL.md` first. Its tables route you from what is on screen to the page t
 
 Then read `references/code-audit.md` for what to search in source, and `references/cross-platform.md` for the Flutter, React Native, Tauri, and Electron vocabulary when the change is not native Apple code.
 
-Cite file and heading, for example `buttons.md › Style`.
+Cite file and heading, as in `buttons.md`, section Style.
 
 ## Measure in a browser
 
