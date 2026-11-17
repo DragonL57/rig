@@ -19,3 +19,5 @@ Versions are marked with Git tags: `agents-v1` is the last long-form file, `agen
 ## Consequences
 
 The file is 2,270 words against 2,734, a 17% cut overall and 22% on the editable core once the fixed Backlog block is excluded. Downstream repositories pick it up on their next Pandino update; their own `AGENTS.md` is never overwritten, so the new core lands in `.pandino/merge/` where it differs. The benchmark harness stays for the next rewrite: a candidate goes under `variants/` and runs against the same ground truth, so "shorter" can be checked against "still works" before it ships.
+
+Superseded in part by `decision-16`: the volume framing no longer applies to the global `AGENTS.md`, which is now trimmed by merging split rules rather than by shrinking the file. The benchmark method below still applies to this kit's core contract.
