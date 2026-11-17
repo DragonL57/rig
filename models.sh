@@ -28,7 +28,7 @@ agent_preferences() {
         implementer)
             printf '%s\n' 'gpt-6.1-sol medium' 'claude-sonnet-5-5 medium' 'sonnet medium'
             ;;
-        taste-reviewer|spec-reviewer)
+        taste-reviewer|spec-reviewer|uiux-reviewer)
             printf '%s\n' 'gpt-6.1-terra medium'
             _routine_review_fallbacks
             ;;
@@ -47,7 +47,7 @@ agent_preferences() {
     esac
 }
 
-# Taste, spec and docs review share these choices after their first one.
+# Taste, spec, uiux and docs review share these choices after their first one.
 _routine_review_fallbacks() {
     printf '%s\n' 'deepseek-v4.1-flash high' 'glm-5.3 high' 'kimi-k2.6 high' 'kimi-k2.7-code high' \
         'claude-sonnet-5-5 high' 'opus high' 'sonnet high' 'gpt-6-luna high'
@@ -63,7 +63,7 @@ superseded_models() {
 # The specialists that carry a model and effort, in workflow order.
 # fallback-runner is deliberately dynamic, so it has no saved assignment.
 pinned_agents() {
-    printf '%s\n' implementer taste-reviewer spec-reviewer docs-reviewer test-reviewer final-reviewer
+    printf '%s\n' implementer taste-reviewer spec-reviewer uiux-reviewer docs-reviewer test-reviewer final-reviewer
 }
 
 # The shell variable holding one agent's model, effort, or replaced model in
@@ -100,7 +100,7 @@ LEGACY_ROLES = {
     "test": ["test-reviewer"],
     "final": ["final-reviewer"],
 }
-AGENTS = {"implementer", "taste-reviewer", "spec-reviewer", "docs-reviewer", "test-reviewer", "final-reviewer"}
+AGENTS = {"implementer", "taste-reviewer", "spec-reviewer", "uiux-reviewer", "docs-reviewer", "test-reviewer", "final-reviewer"}
 try:
     with open(sys.argv[1]) as f:
         saved = json.load(f)

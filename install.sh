@@ -299,7 +299,7 @@ case "$answer_mode" in
     --yes) picked_keys="pi claude opencode codex" ;;
     *)
         if asking; then
-            heading "Editors" "— where to put the seven helpers"
+            heading "Editors" "— where to put the eight helpers"
             body "  Ticked ones are already on your machine."
             body "  @↑↓ move, space select, enter confirm@"
             printf '\n' > /dev/tty
@@ -402,7 +402,7 @@ fill_missing_efforts() {
 }
 
 # One block per harness, one row per agent with its model and effort. Model ids
-# run long and differ per harness, so six columns side by side are unreadable.
+# run long and differ per harness, so seven columns side by side are unreadable.
 print_model_matrix() {
     local harness agent model_var effort_var
     for harness in $picked_keys; do
@@ -596,15 +596,54 @@ else
     say installed "$green" "$target/.rig/playbooks/"
 fi
 
+# The kit's skills are its .agents/skills/ directories, so a new one ships and
+# appears in the recap without a second edit here.
+kit_skills() {
+    local path
+    for path in "$kit_dir"/.agents/skills/*/; do
+        basename "$path"
+    done
+}
+
+# What each shipped skill does, for the recap. A skill with no line here shows
+# its bare name.
+skill_gloss() {
+    case "$1" in
+        rig-pickup)       printf 'resumes a session from the snapshot' ;;
+        rig-handoff)      printf 'writes a handover for the next session' ;;
+        rig-update)       printf 'updates this kit' ;;
+        browser-sessions) printf 'drives a real browser page' ;;
+    esac
+}
+
+skill_recap_list() {
+    local name gloss item text=""
+    for name in $(kit_skills); do
+        gloss="$(skill_gloss "$name")"
+        if [ -n "$gloss" ]; then
+            item="$name $gloss"
+        else
+            item="$name"
+        fi
+        if [ -z "$text" ]; then
+            text="$item"
+        else
+            text="$text, $item"
+        fi
+    done
+    printf '%s' "$text"
+}
+
 install_session_skills() {
-    local skills_dir="$1" name
+    local skills_dir="$1" name names=""
     [ "$kit_dir/.agents/skills" -ef "$skills_dir" ] && return 0
-    for name in rig-pickup rig-handoff rig-update; do
+    for name in $(kit_skills); do
         rm -rf "$skills_dir/$name"
         mkdir -p "$skills_dir"
         cp -R "$kit_dir/.agents/skills/$name" "$skills_dir/$name"
+        names="${names:+$names, }$name"
     done
-    say installed "$green" "$skills_dir/ ${dim}(rig-pickup, rig-handoff, rig-update)${reset}"
+    say installed "$green" "$skills_dir/ ${dim}($names)${reset}"
 }
 install_session_skills "$target/.agents/skills"
 # Claude Code reads project skills only from .claude/skills.
@@ -739,13 +778,13 @@ recap ".rig/install.json" " — the source revision from this successful install
 recap ".rig/check-update" " — manually checks whether upstream main changed"
 recap "AGENTS.md" " — the always-on rules and the index of playbooks"
 recap ".rig/playbooks/" " — how-to guides agents read when the work calls for them"
-recap ".agents/skills/" " — rig-pickup and rig-handoff to resume and hand over sessions, rig-update to update this kit"
+recap ".agents/skills/" " — $(skill_recap_list)"
 for harness in $picked_keys; do
     case "$harness" in
-        pi)       recap ".pi/agents/" " — six pinned specialists: implementer, taste-reviewer, spec-reviewer, docs-reviewer, test-reviewer, final-reviewer; unpinned fallback-runner" ;;
-        claude)   recap ".claude/agents/" " — the same seven, for Claude Code" ;;
-        opencode) recap ".opencode/agent/" " — the same seven, for opencode" ;;
-        codex)    recap ".codex/agents/" " — the same seven, for Codex" ;;
+        pi)       recap ".pi/agents/" " — seven pinned specialists: implementer, taste-reviewer, spec-reviewer, uiux-reviewer, docs-reviewer, test-reviewer, final-reviewer; unpinned fallback-runner" ;;
+        claude)   recap ".claude/agents/" " — the same eight, for Claude Code" ;;
+        opencode) recap ".opencode/agent/" " — the same eight, for opencode" ;;
+        codex)    recap ".codex/agents/" " — the same eight, for Codex" ;;
     esac
 done
 
@@ -760,6 +799,7 @@ case " $picked_keys " in
 esac
 
 recap "backlog/" " — tasks your agents read and update between sessions"
+printf '  %s    uiux-reviewer also needs the apple-design skill for Apple interface guidelines, which this kit does not install: npx skills add dickwu/apple-design-skill%s\n' "$grey" "$reset"
 
 printf '\n  %sModels each specialist will run on:%s\n' "$grey" "$reset"
 print_model_matrix

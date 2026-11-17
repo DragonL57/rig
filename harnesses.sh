@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Write the seven agent definitions in the layout each harness expects.
+# Write the eight agent definitions in the layout each harness expects.
 # Sourced by install.sh; the kit's own copies under agents/ stay the source
 # of truth, these are translations of them.
 #
 # Verified 2026-08-05:
-#   pi           .pi/agents/          frontmatter: description, tools, thinking, model
+#   pi           .pi/agents/          frontmatter: description, tools, extensions, thinking, model
 #   claude code  .claude/agents/      frontmatter: name, description, tools, model
 #   opencode     .opencode/agent/     frontmatter: name, description, mode, tools, model
 #   codex        .codex/agents/       TOML: name, description, model, developer_instructions
@@ -76,7 +76,8 @@ write_pi_agent() {
 
 # Claude Code: tools are capitalised names, and "all" is expressed by omission.
 # A writing agent needs Edit as well as Write, and pi's editing tools (replace,
-# replace_match, insert) have no Claude Code equivalent but Edit.
+# replace_match, insert) have no Claude Code equivalent but Edit. codemode is a pi
+# built-in with no Claude Code equivalent, so it contributes no tool.
 claude_tools() {
     case "$1" in
         all|"") return ;;
@@ -85,7 +86,7 @@ claude_tools() {
     # rewritten by accident. An unknown name passes through unchanged.
     printf '%s\n' "$1" | tr ',' '\n' | while read -r tool; do
         case "$(printf '%s' "$tool" | tr -d ' ')" in
-            "") ;;
+            ""|codemode) ;;
             read) printf 'Read\n' ;;
             bash) printf 'Bash\n' ;;
             write) printf 'Write\nEdit\n' ;;

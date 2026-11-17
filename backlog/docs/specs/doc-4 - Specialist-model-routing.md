@@ -3,7 +3,7 @@ id: doc-4
 title: Specialist model routing
 type: specification
 created_date: '2026-09-28 22:19'
-updated_date: '2026-11-16 11:01'
+updated_date: '2026-11-17 03:23'
 ---
 # Specialist model routing
 
@@ -16,12 +16,12 @@ Each agent has an ordered list of model and effort pairs. A harness takes the fi
 | Agent | First choice | Fallbacks, in order |
 |---|---|---|
 | implementer | GPT-6.1 Sol · medium | Sonnet 5.5 · medium, `sonnet` · medium |
-| taste / spec reviewer | GPT-6.1 Terra · medium | DeepSeek V4.1 Flash, GLM 5.3, Kimi K2.6, Kimi K2.7 Code, Sonnet 5.5, `opus`, `sonnet`, GPT-6 Luna, all high |
-| docs reviewer | GPT-6.1 Terra · low | the same as taste and spec |
+| taste / spec reviewer, uiux-reviewer | GPT-6.1 Terra · medium | DeepSeek V4.1 Flash, GLM 5.3, Kimi K2.6, Kimi K2.7 Code, Sonnet 5.5, `opus`, `sonnet`, GPT-6 Luna, all high |
+| docs reviewer | GPT-6.1 Terra · low | the same as taste, spec and uiux |
 | test reviewer | GPT-6.1 Sol · high | Sonnet 5.5, `sonnet`, `opus`, DeepSeek V4 Pro, DeepSeek V4.1 Flash, GLM 5.3, all high |
 | final reviewer | GPT-6.1 Sol · max | Opus 5.5, `opus`, GPT-6 Astra, Sonnet 5.5, `sonnet`, all medium |
 
-Pi and Codex carry Sol and Terra and get the first choices. Claude Code gets `sonnet` medium for implementation, `opus` high for taste, spec and docs review, `sonnet` high for test review and `opus` medium for final review. OpenCode gets Sol where its catalogue has it and the next pair elsewhere.
+Pi and Codex carry Sol and Terra and get the first choices. Claude Code gets `sonnet` medium for implementation, `opus` high for taste, spec, uiux-reviewer and docs review, `sonnet` high for test review and `opus` medium for final review. OpenCode gets Sol where its catalogue has it and the next pair elsewhere.
 
 The writer, test reviewer and final reviewer share Sol on Pi and Codex, at different efforts. Their responsibilities and sessions remain separate; different effort is not model diversity. The operator accepts this for cost. Claude Code receives the `sonnet` and `opus` aliases rather than full model IDs, so each agent follows the newest version of that family available to the account.
 

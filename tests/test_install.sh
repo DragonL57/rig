@@ -3,6 +3,31 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
+# The kit's helpers, named once. agents_pinned are the specialists the installer
+# pins a model for; agents_all adds the unpinned fallback runner.
+agents_pinned="implementer taste-reviewer spec-reviewer uiux-reviewer docs-reviewer test-reviewer final-reviewer"
+agents_all="$agents_pinned fallback-runner"
+
+# The installer ships every agents/*.md by glob, so a file the lists above miss
+# would install everywhere while these tests stayed green. The lists keep the
+# order the picker reads; the files have to match them exactly.
+for agent_file in "$repo_dir"/agents/*.md; do
+    agent_name="$(basename "$agent_file" .md)"
+    case " $agents_all " in
+        *" $agent_name "*) ;;
+        *)
+            echo "FAIL: agents/$agent_name.md ships without being declared in agents_all" >&2
+            exit 1
+            ;;
+    esac
+done
+shipped_count="$(find "$repo_dir/agents" -name '*.md' | wc -l | tr -d ' ')"
+declared_count="$(printf '%s\n' $agents_all | wc -l | tr -d ' ')"
+if [ "$shipped_count" -ne "$declared_count" ]; then
+    echo "FAIL: agents/ ships $shipped_count agent files, agents_all declares $declared_count" >&2
+    exit 1
+fi
+
 # The Rig-owned part of an AGENTS.md: everything above the project marker.
 # An agent file as the kit ships it: the installed copy differs only by the
 # model and thinking lines the installer pins in.
@@ -159,6 +184,8 @@ done
 grep -qx 'thinking: medium' "$fresh_target/.pi/agents/taste-reviewer.md"
 grep -qx 'thinking: medium' "$fresh_target/.pi/agents/spec-reviewer.md"
 grep -qx 'thinking: low' "$fresh_target/.pi/agents/docs-reviewer.md"
+grep -qx 'model: openai-codex/gpt-6.1-terra' "$fresh_target/.pi/agents/uiux-reviewer.md"
+grep -qx 'thinking: medium' "$fresh_target/.pi/agents/uiux-reviewer.md"
 grep -qx 'model: openai-codex/gpt-6.1-sol' "$fresh_target/.pi/agents/test-reviewer.md"
 grep -qx 'thinking: high' "$fresh_target/.pi/agents/test-reviewer.md"
 grep -qx 'model: openai-codex/gpt-6.1-sol' "$fresh_target/.pi/agents/final-reviewer.md"
@@ -168,7 +195,7 @@ diff -q <(core_agents "$repo_dir/AGENTS.md") <(core_agents "$fresh_target/AGENTS
 grep -qxF '## Corrections' "$fresh_target/AGENTS.md"
 grep -qF 'BACKLOG.MD GUIDELINES START' "$fresh_target/AGENTS.md"
 [ -d "$fresh_target/backlog" ]
-for agent in implementer spec-reviewer taste-reviewer docs-reviewer test-reviewer final-reviewer fallback-runner; do
+for agent in $agents_all; do
     diff -q <(agent_without_pin "$repo_dir/agents/$agent.md") \
         <(agent_without_pin "$fresh_target/.pi/agents/$agent.md") > /dev/null
 done
@@ -176,6 +203,37 @@ if grep -q '^model: ' "$fresh_target/.pi/agents/fallback-runner.md"; then
     echo "FAIL: fresh fallback-runner has a model pin" >&2
     exit 1
 fi
+
+# Interface review needs MCP to drive a browser, so it declares extensions and
+# carries no exclude_extensions line in its frontmatter, the block the installer
+# reads. The tool list below omits the writers this test names: `read` and `bash`
+# can still write through a shell and `codemode` runs JavaScript, so what it
+# proves is that the named writer tools are absent, not that the agent is
+# read-only.
+grep -qxF 'extensions: pi-mcp-adapter, builtin:codemode' "$fresh_target/.pi/agents/uiux-reviewer.md"
+if awk '/^---$/ { fences++ } fences < 2 { print }' "$fresh_target/.pi/agents/uiux-reviewer.md" \
+    | grep -q '^exclude_extensions:'
+then
+    echo "FAIL: uiux-reviewer drops MCP through exclude_extensions" >&2
+    exit 1
+fi
+uiux_tools="$(awk -F': *' '/^tools:/ { print $2; exit }' "$fresh_target/.pi/agents/uiux-reviewer.md" | tr -d ' ')"
+case "$uiux_tools" in
+    *write*|*replace*|*insert*)
+        echo "FAIL: uiux-reviewer names a writing tool: $uiux_tools" >&2
+        exit 1
+        ;;
+esac
+# Wording-drift guards: the prompt has to keep naming the skill it reads and the
+# marker it writes on an unchecked claim. They prove nothing about behaviour.
+grep -qF 'apple-design' "$fresh_target/.pi/agents/uiux-reviewer.md" || {
+    echo "FAIL: uiux-reviewer no longer names the apple-design skill" >&2
+    exit 1
+}
+grep -qF 'UNVERIFIED' "$fresh_target/.pi/agents/uiux-reviewer.md" || {
+    echo "FAIL: uiux-reviewer no longer marks unchecked claims UNVERIFIED" >&2
+    exit 1
+}
 [ ! -e "$fresh_target/.rig/merge" ]
 diff -r "$repo_dir/.rig/playbooks" "$fresh_target/.rig/playbooks" > /dev/null
 diff -r "$repo_dir/.agents/skills" "$fresh_target/.agents/skills" > /dev/null
@@ -694,6 +752,14 @@ python3 -c "import tomllib,sys; [tomllib.load(open(f,'rb')) for f in sys.argv[1:
 grep -q "You are the taste reviewer" "$yes_target/.claude/agents/taste-reviewer.md"
 grep -q "You are the test reviewer" "$yes_target/.claude/agents/test-reviewer.md"
 
+# codemode is a Pi built-in with no Claude Code equivalent, so the translated
+# tool list must not carry it.
+[ -f "$yes_target/.claude/agents/uiux-reviewer.md" ]
+if grep -q '^tools:.*codemode' "$yes_target/.claude/agents/uiux-reviewer.md"; then
+    echo "FAIL: Claude uiux-reviewer names codemode" >&2
+    exit 1
+fi
+
 [ -d "$yes_target/backlog" ]
 bash "$repo_dir/install.sh" "$yes_target" --yes > "$tmp_dir/yes2.out"
 [ "$(grep -c 'BACKLOG.MD GUIDELINES START' "$yes_target/AGENTS.md")" = "1" ]
@@ -737,14 +803,14 @@ cat > "$pin_home/.codex/models_cache.json" <<'JSON'
 JSON
 HOME="$pin_home" bash "$repo_dir/install.sh" "$pin_target" --yes > "$tmp_dir/pins.out"
 
-# All seven agents ship everywhere. The six specialists retain their resolved pins.
-for agent in implementer taste-reviewer spec-reviewer docs-reviewer test-reviewer final-reviewer fallback-runner; do
+# All eight agents ship everywhere. The seven specialists retain their resolved pins.
+for agent in $agents_all; do
     [ -f "$pin_target/.pi/agents/$agent.md" ]
     [ -f "$pin_target/.claude/agents/$agent.md" ]
     [ -f "$pin_target/.opencode/agent/$agent.md" ]
     [ -f "$pin_target/.codex/agents/$agent.toml" ]
 done
-for agent in implementer taste-reviewer spec-reviewer docs-reviewer test-reviewer final-reviewer; do
+for agent in $agents_pinned; do
     grep -q "^model: " "$pin_target/.pi/agents/$agent.md"
     grep -q "^model: " "$pin_target/.claude/agents/$agent.md"
     grep -q "^model: " "$pin_target/.opencode/agent/$agent.md"
@@ -773,7 +839,8 @@ grep -q '^sandbox_mode = "read-only"' "$pin_target/.codex/agents/fallback-runner
 grep -qx 'thinking: high' "$pin_target/.pi/agents/test-reviewer.md"
 # The launch call owns the budget, so no Pi agent may pin one, and every agent
 # may name only a tool the kit allows. pi ignores an unknown name silently, so
-# the list is checked in both directions.
+# the list is checked in both directions. codemode runs JavaScript, so only
+# uiux-reviewer may name it.
 for file in "$pin_target"/.pi/agents/*.md; do
     agent="$(basename "$file" .md)"
     if grep -q '^max_turns:' "$file"; then
@@ -788,6 +855,12 @@ for file in "$pin_target"/.pi/agents/*.md; do
     for token in $(printf '%s' "$tools" | tr ',' ' '); do
         case "$token" in
             read|bash|write|replace|replace_match|insert) ;;
+            codemode)
+                if [ "$agent" != uiux-reviewer ]; then
+                    echo "FAIL: Pi $agent may not name codemode" >&2
+                    exit 1
+                fi
+                ;;
             *)
                 echo "FAIL: Pi $agent names a tool the kit does not allow: $token" >&2
                 exit 1
@@ -946,10 +1019,10 @@ fi
 
 # The assignment is saved, and the matrix is printed once with everything else.
 [ -f "$pin_target/.rig/models.json" ]
-python3 - "$pin_target/.rig/models.json" <<'JSON'
+python3 - "$pin_target/.rig/models.json" "$agents_pinned" <<'JSON'
 import json, sys
 saved = json.load(open(sys.argv[1]))
-agents = {"implementer", "taste-reviewer", "spec-reviewer", "docs-reviewer", "test-reviewer", "final-reviewer"}
+agents = set(sys.argv[2].split())
 assert all(set(entries) == agents for entries in saved.values()), saved
 assert saved["opencode"]["final-reviewer"] == {"model": "opencode/gpt-6.1-sol", "effort": "max"}
 assert saved["pi"]["docs-reviewer"] == {"model": "openai-codex/gpt-6.1-terra", "effort": "low"}
@@ -993,9 +1066,11 @@ grep -F "fallback-runner has no default and requires a call-time model" "$tmp_di
 
 # A legacy role-keyed file without test review migrates to per-agent entries:
 # reviewer expands to its three agents, the missing test model is resolved,
-# and every effort takes the kit default.
+# and every effort takes the kit default. The hand-edited uiux-reviewer entry
+# sits beside the role keys and has to survive the rewrite.
 cat > "$pin_target/.rig/models.json" <<'JSON'
-{"pi": {"implementer": "openai-codex/gpt-6.1-sol", "reviewer": "ollama-cloud/glm-5.3", "final": "openai-codex/gpt-6-astra"},
+{"pi": {"implementer": "openai-codex/gpt-6.1-sol", "reviewer": "ollama-cloud/glm-5.3", "final": "openai-codex/gpt-6-astra",
+        "uiux-reviewer": {"model": "ollama-cloud/kimi-k3", "effort": "high"}},
  "claude": {"implementer": "sonnet", "reviewer": "opus", "test": "sonnet", "final": "opus"},
  "opencode": {"implementer": "opencode/gpt-6.1-sol", "reviewer": "opencode/deepseek-v4.1-flash", "test": "opencode/gpt-6.1-sol", "final": "opencode/claude-opus-5-5"},
  "codex": {"implementer": "gpt-6.1-sol", "reviewer": "gpt-6-luna", "test": "gpt-6.1-sol", "final": "gpt-6-astra"}}
@@ -1005,10 +1080,16 @@ grep -qx "model: openai-codex/gpt-6.1-sol" "$pin_target/.pi/agents/test-reviewer
 for agent in taste-reviewer spec-reviewer docs-reviewer; do
     grep -qx "model: ollama-cloud/glm-5.3" "$pin_target/.pi/agents/$agent.md"
 done
-python3 - "$pin_target/.rig/models.json" <<'JSON'
+# The hand-edited uiux-reviewer entry outranks the recommendation and survives
+# the rewrite. A read that drops it would pin the recommended model instead.
+grep -qx "model: ollama-cloud/kimi-k3" "$pin_target/.pi/agents/uiux-reviewer.md" || {
+    echo "FAIL: the saved uiux-reviewer model was dropped on read" >&2
+    exit 1
+}
+python3 - "$pin_target/.rig/models.json" "$agents_pinned" <<'JSON'
 import json, sys
 saved = json.load(open(sys.argv[1]))
-assert set(saved["pi"]) == {"implementer", "taste-reviewer", "spec-reviewer", "docs-reviewer", "test-reviewer", "final-reviewer"}, saved["pi"]
+assert set(saved["pi"]) == set(sys.argv[2].split()), saved["pi"]
 assert saved["pi"]["spec-reviewer"] == {"model": "ollama-cloud/glm-5.3", "effort": "high"}
 assert saved["pi"]["final-reviewer"] == {"model": "openai-codex/gpt-6-astra", "effort": "medium"}
 JSON
@@ -1104,7 +1185,10 @@ if grep -q '^forceReasoning:' "$pin_target/.opencode/agent/final-reviewer.md"; t
     echo 'FAIL: saved OpenCode Kimi pin has forceReasoning' >&2
     exit 1
 fi
-for agent in implementer taste-reviewer spec-reviewer docs-reviewer final-reviewer fallback-runner; do
+for agent in $agents_all; do
+    if [ "$agent" = test-reviewer ]; then
+        continue
+    fi
     if grep -qx "model: ollama-cloud/glm-5.3" "$pin_target/.pi/agents/$agent.md"; then
         echo "FAIL: saved test model pinned $agent" >&2
         exit 1
@@ -1132,8 +1216,8 @@ if grep -q '^model: ' "$pin_target/.pi/agents/fallback-runner.md"; then
     echo "FAIL: hand-edited fallback-runner has a model pin" >&2
     exit 1
 fi
-python3 -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if all(len(entries) == 6 and 'fallback-runner' not in entries for entries in d.values()) else 1)" \
-    "$pin_target/.rig/models.json"
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); agents=set(sys.argv[2].split()); sys.exit(0 if all(set(entries) == agents for entries in d.values()) else 1)" \
+    "$pin_target/.rig/models.json" "$agents_pinned"
 [ ! -e "$pin_target/.rig/merge/agents/taste-reviewer.md" ]
 [ ! -e "$pin_target/.rig/merge/agents/test-reviewer.md" ]
 
@@ -1180,6 +1264,7 @@ steps = [
     (b"implementer", b"\x1b[B\r"),
     (b"taste-reviewer", b"\x1b[B\r"),
     (b"spec-reviewer", b"\x1b[B\r"),
+    (b"uiux-reviewer", b"\x1b[B\r"),
     (b"docs-reviewer", b"\x1b[B\r"),
     (b"test-reviewer", b"\x1b[B\r"),
     (b"final-reviewer", b"\x1b[B\r"),
@@ -1225,6 +1310,8 @@ env PATH="$tmp_dir/bin:/usr/bin:/bin" HOME="$custom_home" \
 grep -qx "model: ollama-cloud/deepseek-v4.1-flash" "$custom_target/.pi/agents/taste-reviewer.md"
 grep -qx "model: ollama-cloud/deepseek-v4.1-flash" "$custom_target/.pi/agents/docs-reviewer.md"
 grep -qx "thinking: high" "$custom_target/.pi/agents/docs-reviewer.md"
+grep -qx "model: ollama-cloud/deepseek-v4.1-flash" "$custom_target/.pi/agents/uiux-reviewer.md"
+grep -qx "thinking: high" "$custom_target/.pi/agents/uiux-reviewer.md"
 grep -qx "model: anthropic/claude-sonnet-5-5" "$custom_target/.pi/agents/implementer.md"
 grep -qx "model: anthropic/claude-sonnet-5-5" "$custom_target/.pi/agents/test-reviewer.md"
 grep -qx "model: anthropic/claude-opus-5-5" "$custom_target/.pi/agents/final-reviewer.md"
