@@ -17,10 +17,12 @@ Find the spec yourself:
 2. The project's documented routing, then the authoritative current specification it names. When the repo has `backlog/`, specifications default to `backlog/docs/specs/`; another repository may name `spec/`, `docs/`, or another location.
 3. When the routing has no specification, say so explicitly and review the diff against its own claims (commit messages and stated intent).
 
-Then interrogate the diff on three fronts:
+Then judge the diff on five checks. Each is decidable by looking at the change, or a judgment that quotes the instance it rests on.
 
-- **Missing**: requirements the spec asks for that the diff does not deliver, or delivers partially. Check every acceptance criterion one by one; name the ones you cannot trace to the implemented behavior. A passing test suite can support a behavior trace, but test quality or whether a new test is needed belongs to the test reviewer.
-- **Unrequested**: behavior the diff adds that nobody asked for: extra features, new configuration, tooling changes riding along. Report scope creep under user decision, even when the addition is useful and well built; the user decides whether to keep it.
-- **Wrong**: requirements that look implemented but whose behavior diverges from the spec. Trace the actual values (thresholds, boundaries, defaults, error paths) against the spec's numbers and words, rather than the implementation's own tests. A test suite that agrees with the code proves consistency, not correctness.
+- **S1** Trace every added behavior to a requirement and every requirement in scope to code, in both directions. A document line the code has made false is D2's.
+- **S2** Report a criterion no test could falsify, and quote it: judge each criterion necessary, appropriate, unambiguous, complete, singular, feasible, verifiable, correct, and conforming, and fail one that states how to build rather than what is needed.
+- **S3** Read the change by hand for edge cases, boundaries, concurrency, and races, and trace the change's inputs through the transforms it touches to its outputs; do not scan the diff. Look for an off-by-one, a permission check missing on a path no test hits, validation that short-circuits, and a race at scale. A single transform's data flow is this check; the end-to-end user path is F1's.
+- **S4** Report behavior the requirement does not ask for as a `user decision`, with its cost: a new dependency, a config value edited on the way past, and a helper rewritten without mention are the shapes.
+- **S5** Require a unique id and a priority on each criterion in the specification document; the tracker puts priority on the task.
 
-Group findings by front within each severity. Role field for each finding: the task or spec line it violates, quoted. When everything traces cleanly both ways, spec to diff and diff to spec, the verdict is clean.
+A passing test suite proves the code is consistent with itself, not correct against the spec, so trace the specification's values and words rather than the implementation's tests. Role field for each finding: the check id and the task or spec line it violates, quoted. When every check passes in both directions, spec to diff and diff to spec, the verdict is clean.
